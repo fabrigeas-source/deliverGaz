@@ -1,0 +1,69 @@
+# Docker ignore file for DeliverGaz Flutter App
+
+# Dart/Flutter build artifacts
+build/
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# Coverage and test reports
+coverage/
+test_coverage/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Git
+.git/
+.gitignore
+
+# Documentation (optional - remove if you want docs in container)
+docs/
+README.md
+*.md
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Node modules (if any)
+node_modules/
+
+# Temporary files
+tmp/
+temp/
+
+# Docker files themselves
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Certificate files
+*.pem
+*.key
+*.crt
+certs/

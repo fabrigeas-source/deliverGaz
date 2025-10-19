@@ -1,0 +1,723 @@
+{
+  "appTitle": "DeliverGaz",
+  "appSubtitle": "Gas Delivery Service",
+  
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "@appSubtitle": {
+    "description": "The subtitle of the application"
+  },
+  
+  "welcome": "Welcome to DeliverGaz",
+  "welcomeMessage": "Your reliable gas delivery partner",
+  "getStarted": "Get Started",
+  "home": "Home",
+  "findGasStations": "Find Gas Stations",
+  "orderDelivery": "Order Delivery",
+  "trackOrder": "Track Order",
+  "findGasStationsSelected": "Find gas stations selected!",
+  
+  "@welcome": {
+    "description": "Welcome message on home screen"
+  },
+  "@welcomeMessage": {
+    "description": "Welcome message subtitle"
+  },
+  
+  "signIn": "Sign In",
+  "signUp": "Sign Up",
+  "signInTitle": "Welcome Back",
+  "signInSubtitle": "Sign in to your account",
+  "email": "Email",
+  "emailHint": "Enter your email address",
+  "password": "Password",
+  "passwordHint": "Enter your password",
+  "forgotPassword": "Forgot Password?",
+  "noAccount": "Don't have an account?",
+  "hasAccount": "Already have an account?",
+  "createAccount": "Create Account",
+  "signInSuccess": "Successfully signed in!",
+  "signInError": "Failed to sign in. Please check your credentials.",
+  
+  "@signIn": {
+    "description": "Sign in button text"
+  },
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  
+  "orders": "Orders",
+  "myOrders": "My Orders",
+  "orderHistory": "Order History",
+  "createOrder": "Create Order",
+  "orderDetails": "Order Details",
+  "orderId": "Order ID",
+  "orderStatus": "Order Status",
+  "orderDate": "Order Date",
+  "orderTotal": "Total",
+  "orderItems": "Items",
+  
+  "all": "All",
+  "pending": "Pending",
+  "processing": "Processing",
+  "delivered": "Delivered",
+  "cancelled": "Cancelled",
+  
+  "filterOrders": "Filter Orders",
+  "sortBy": "Sort by",
+  "date": "Date",
+  "status": "Status",
+  "total": "Total",
+  "id": "ID",
+  
+  "testOrderCreated": "Test order {orderId} created successfully!",
+  "failedToCreateOrder": "Failed to create order: {error}",
+  
+  "@testOrderCreated": {
+    "description": "Success message when test order is created",
+    "placeholders": {
+      "orderId": {
+        "type": "String",
+        "example": "12345"
+      }
+    }
+  },
+  "@failedToCreateOrder": {
+    "description": "Error message when order creation fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  
+  "profile": "Profile",
+  "myProfile": "My Profile",
+  "editProfile": "Edit Profile",
+  "personalInformation": "Personal Information",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "phoneNumber": "Phone Number",
+  "address": "Address",
+  "city": "City",
+  "state": "State",
+  "zipCode": "ZIP Code",
+  "save": "Save",
+  "cancel": "Cancel",
+  
+  "shoppingCart": "Shopping Cart",
+  "cart": "Cart",
+  "addToCart": "Add to Cart",
+  "removeFromCart": "Remove from Cart",
+  "checkout": "Checkout",
+  "emptyCart": "Your cart is empty",
+  "continueToCart": "Continue to Cart",
+  "selectItemsFirst": "Select Items First",
+  
+  "selectItems": "Select Items for Your Order",
+  "selectItemsDescription": "Choose from our available gas cylinders and accessories",
+  "gasCylinder13kg": "13kg Gas Cylinder",
+  "gasRegulator": "Gas Regulator",
+  "gasHose2m": "2m Gas Hose",
+  "quantity": "Quantity",
+  "selectQuantity": "Select Quantity",
+  "addingToCart": "Adding to Cart...",
+  
+  "payment": "Payment",
+  "paymentMethod": "Payment Method",
+  "creditCard": "Credit Card",
+  "cash": "Cash",
+  "payPal": "PayPal",
+  "processPayment": "Process Payment",
+  
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "retry": "Retry",
+  "close": "Close",
+  "confirm": "Confirm",
+  
+  "settings": "Settings",
+  "language": "Language",
+  "notifications": "Notifications",
+  "about": "About",
+  "version": "Version",
+  "logout": "Logout",
+  
+  "noOrdersFound": "No orders found",
+  "noOrdersMessage": "You haven't placed any orders yet. Start by creating your first order!",
+  
+  "currency": "$",
+  "priceFormat": "${amount}",
+  
+  "@priceFormat": {
+    "description": "Format for displaying prices",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25.99"
+      }
+    }
+  },
+
+  "paymentInformation": "Payment Information",
+  "orderSummary": "Order Summary",
+  "totalAmount": "Total Amount",
+  "paymentMethods": "Payment Methods",
+  "mobilePayment": "Mobile Payment",
+  "bankTransfer": "Bank Transfer",
+  "cashOnDelivery": "Cash on Delivery",
+  
+  "mtnMobileMoney": "MTN Mobile Money",
+  "orangeMoney": "Orange Money",
+  "expressUnionMobile": "Express Union Mobile",
+  
+  "accountName": "Account Name: DeliverGaz Ltd",
+  "accountNumber": "Account Number: 1234567890",
+  "bankName": "Bank: Commercial Bank of Cameroon",
+  "swiftCode": "SWIFT Code: CBC123456",
+  "transferInstructions": "Please transfer the total amount to the account above and upload your receipt.",
+  
+  "cashPaymentInfo": "Cash Payment Information",
+  "paymentCollectedOnDelivery": "• Payment will be collected upon delivery",
+  "haveExactChange": "• Please have exact change ready",
+  "deliveryFeeIncluded": "• Delivery fee: $5.00 (included in total)",
+  "estimatedDelivery": "• Estimated delivery: 2-4 hours",
+  
+  "uploadReceipt": "Upload Receipt",
+  "selectFile": "Select File",
+  "chooseFile": "Choose File",
+  "uploadPaymentProof": "Upload Payment Proof",
+  
+  "paymentProcessing": "Processing Payment...",
+  "paymentSuccessful": "Payment Successful!",
+  "paymentFailed": "Payment Failed",
+  
+  "registrationTitle": "Create New Account",
+  "registrationSubtitle": "Join DeliverGaz today",
+  "fullName": "Full Name",
+  "fullNameHint": "Enter your full name",
+  "confirmPassword": "Confirm Password",
+  "confirmPasswordHint": "Re-enter your password",
+  "termsAndConditions": "I agree to the Terms and Conditions",
+  "createAccountButton": "Create Account",
+  "accountCreatedSuccess": "Account created successfully!",
+  "registrationFailed": "Registration failed. Please try again.",
+  
+  "editUserInfo": "Edit User Information",
+  "personalDetails": "Personal Details",
+  "contactInformation": "Contact Information",
+  "addressInformation": "Address Information",
+  "saveChanges": "Save Changes",
+  "discardChanges": "Discard Changes",
+  "changesSaved": "Changes saved successfully!",
+  "failedToSaveChanges": "Failed to save changes",
+  
+  "userProfile": "User Profile",
+  "accountSettings": "Account Settings",
+  "preferences": "Preferences",
+  "helpSupport": "Help & Support",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+  "signOut": "Sign Out",
+  
+  "cartEmpty": "Your cart is empty",
+  "cartEmptyMessage": "Add some items to your cart to continue",
+  "subtotal": "Subtotal",
+  "deliveryFee": "Delivery Fee",
+  "tax": "Tax",
+  "grandTotal": "Grand Total",
+  "proceedToCheckout": "Proceed to Checkout",
+  "continueShopping": "Continue Shopping",
+  "removeItem": "Remove Item",
+  "updateQuantity": "Update Quantity",
+  "itemRemoved": "Item removed from cart",
+  "cartUpdated": "Cart updated",
+  
+  "selectItemsForOrder": "Select Items for Your Order",
+  "itemCategoriesTitle": "Browse Categories",
+  "addItemToCart": "Add to Cart",
+  "quantitySelector": "Quantity Selector",
+  "pricePerItem": "Price per item",
+  "itemAddedToCart": "Item added to cart",
+  "selectQuantityFirst": "Please select a quantity first",
+  
+  "orderCreation": "Order Creation",
+  "selectItemsStep": "Select Items",
+  "reviewOrderStep": "Review Order",
+  "paymentStep": "Payment",
+  "confirmationStep": "Confirmation",
+  "orderPlaced": "Order Placed Successfully!",
+  "orderNumber": "Order Number",
+  "trackYourOrder": "Track Your Order",
+  "returnToHome": "Return to Home",
+  
+  "invalidEmail": "Please enter a valid email address",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "fieldRequired": "This field is required",
+  "phoneNumberInvalid": "Please enter a valid phone number",
+  
+  "networkError": "Network error. Please check your connection.",
+  "serverError": "Server error. Please try again later.",
+  "unexpectedError": "An unexpected error occurred",
+  "tryAgainLater": "Please try again later",
+  
+  "searchOrders": "Search orders...",
+  "filterByStatus": "Filter by status",
+  "sortByDate": "Sort by date",
+  "refreshOrders": "Refresh orders",
+  "noOrdersMessage": "No orders found matching your criteria",
+  
+  "currentLanguage": "Current Language",
+  "selectLanguage": "Select Language",
+  "languageChanged": "Language changed successfully",
+
+  "payment": "Payment",
+  "paymentMethod": "Payment Method", 
+  "cardDetails": "Card Details",
+  "mobileMoneyDetails": "Mobile Money Details",
+  "bankTransferDetails": "Bank Transfer Details",
+  "deliveryInformation": "Delivery Information",
+  "orderSummary": "Order Summary",
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalAmount": "Total: ${amount}",
+  "@totalAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "creditDebitCard": "Credit/Debit Card",
+  "creditDebitCardDesc": "Pay with Visa, Mastercard, or other cards",
+  "mobileMoney": "Mobile Money", 
+  "mobileMoneyDesc": "Pay with MTN, Orange, or other mobile wallets",
+  "bankTransfer": "Bank Transfer",
+  "bankTransferDesc": "Direct bank transfer",
+  "payOnDelivery": "Pay on Delivery",
+  "payOnDeliveryDesc": "Pay cash when your order arrives at your doorstep",
+  
+  "cardNumber": "Card Number",
+  "cardholderName": "Cardholder Name",
+  "cardholderNameHint": "John Doe",
+  "expiryDate": "Expiry Date",
+  "cvv": "CVV",
+  "pleaseEnterCardNumber": "Please enter card number",
+  "pleaseEnterValidCardNumber": "Please enter a valid card number",
+  "pleaseEnterCardholderName": "Please enter cardholder name",
+  "required": "Required",
+  "invalidFormat": "Invalid format",
+  "invalidCvv": "Invalid CVV",
+  
+  "phoneNumber": "Phone Number",
+  "mobileMoneyProvider": "Mobile Money Provider",
+  "mtnMobileMoney": "MTN Mobile Money",
+  "orangeMoney": "Orange Money", 
+  "expressUnionMobile": "Express Union Mobile",
+  "pleaseEnterPhoneNumber": "Please enter phone number",
+  "pleaseSelectProvider": "Please select a provider",
+  
+  "bankTransferDetailsTitle": "Bank Transfer Details:",
+  "accountName": "Account Name: DeliverGaz Ltd",
+  "accountNumber": "Account Number: 1234567890",
+  "bankName": "Bank: Commercial Bank of Cameroon",
+  "swiftCode": "SWIFT Code: CBC123456",
+  "referenceNumber": "Reference: ORDER-{timestamp}",
+  "@referenceNumber": {
+    "placeholders": {
+      "timestamp": {
+        "type": "String"
+      }
+    }
+  },
+  "emailForConfirmation": "Email for Payment Confirmation",
+  "pleaseEnterEmail": "Please enter email address",
+  "pleaseEnterValidEmail": "Please enter a valid email",
+  
+  "cashOnDeliveryInfo": "Cash on Delivery Information",
+  "paymentCollectedOnDelivery": "• Payment will be collected upon delivery",
+  "haveExactChange": "• Please have exact change ready", 
+  "deliveryFee": "• Delivery fee: $5.00 (included in total)",
+  "estimatedDelivery": "• Estimated delivery: 2-4 hours",
+  "orderConfirmationSms": "• Order confirmation will be sent via SMS",
+  
+  "deliveryDetails": "Delivery Details",
+  "deliveryAddress": "Delivery Address *",
+  "deliveryAddressHint": "Enter complete delivery address",
+  "contactPhoneNumber": "Contact Phone Number *",
+  "contactPhoneHint": "+237 6XX XXX XXX",
+  "deliveryInstructions": "Delivery Instructions (Optional)",
+  "deliveryInstructionsHint": "Any special instructions for delivery...",
+  "pleaseEnterDeliveryAddress": "Please enter delivery address",
+  "pleaseEnterCompleteAddress": "Please enter a complete address", 
+  "pleaseEnterContactPhone": "Please enter contact phone number",
+  "pleaseEnterValidPhone": "Please enter a valid phone number",
+  
+  "deliveryOptions": "Delivery Options",
+  "standardDelivery": "Standard Delivery (2-4 hours)",
+  "standardDeliveryDesc": "Free within city limits",
+  "expressDelivery": "Express Delivery (1-2 hours)",
+  "expressDeliveryDesc": "Additional $3.00 charge",
+  
+  "placingOrder": "Placing Order...",
+  "processingPayment": "Processing Payment...",
+  "payOnDeliveryButton": "Place Order - ${amount} (Pay on Delivery)",
+  "@payOnDeliveryButton": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payNowButton": "Pay Now - ${amount}",
+  "@payNowButton": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "orderPlacedSuccess": "Order placed successfully! We'll deliver and collect payment.",
+  "paymentSuccessful": "Payment successful! Order confirmed.",
+  "orderPlacementFailed": "Order placement failed: {error}",
+  "@orderPlacementFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentFailed": "Payment failed: {error}",
+  "@paymentFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "editUserInfo": "Edit User Information",
+  "resetForm": "Reset Form", 
+  "resetFormConfirmation": "Are you sure you want to reset all changes? This will restore the original values.",
+  "reset": "Reset",
+  "formResetToOriginal": "Form reset to original values",
+  "saveChanges": "Save Changes",
+  "resetFormTooltip": "Reset Form",
+  "saveChangesTooltip": "Save Changes",
+  
+  "personalInformation": "Personal Information",
+  "contactInformation": "Contact Information", 
+  "addressInformation": "Address Information",
+  "notificationPreferences": "Notification Preferences",
+  "privacySettings": "Privacy Settings",
+  
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "gender": "Gender",
+  "dateOfBirth": "Date of Birth",
+  "male": "Male",
+  "female": "Female", 
+  "other": "Other",
+  "selectDate": "Select Date",
+  
+  "phoneNumber": "Phone Number",
+  "address": "Address",
+  "city": "City",
+  "zipCode": "ZIP Code",
+  "country": "Country",
+  "selectCountry": "Select Country",
+  
+  "emailNotifications": "Email Notifications",
+  "smsNotifications": "SMS Notifications", 
+  "marketingEmails": "Marketing Emails",
+  "pushNotifications": "Push Notifications",
+  "receiveGeneralUpdates": "Receive general updates and notifications via email",
+  "receiveSmsAlerts": "Receive SMS alerts for important updates",
+  "receiveMarketingContent": "Receive promotional content and marketing emails",
+  "receivePushNotifications": "Receive push notifications on your device",
+  
+  "profileVisibility": "Profile Visibility",
+  "showBirthday": "Show Birthday",
+  "showPhone": "Show Phone Number",
+  "makeProfileVisible": "Make your profile visible to other users",
+  "displayBirthdayOnProfile": "Display your birthday on your profile",
+  "displayPhoneOnProfile": "Display your phone number on your profile",
+  
+  "saveInformation": "Save Information",
+  "discardChanges": "Discard Changes",
+  "changeProfilePicture": "Change Profile Picture",
+  "takePhoto": "Take Photo",
+  "chooseFromGallery": "Choose from Gallery", 
+  "removePhoto": "Remove Photo",
+  
+  "firstNameRequired": "First name is required",
+  "firstNameTooShort": "First name must be at least 2 characters",
+  "lastNameRequired": "Last name is required", 
+  "lastNameTooShort": "Last name must be at least 2 characters",
+  "emailRequired": "Email is required",
+  "invalidEmailFormat": "Invalid email format",
+  "phoneRequired": "Phone number is required",
+  "phoneTooShort": "Phone number must be at least 10 digits",
+  "addressRequired": "Address is required",
+  "addressTooShort": "Address must be at least 5 characters",
+  "cityRequired": "City is required",
+  "cityTooShort": "City name must be at least 2 characters", 
+  "zipCodeRequired": "ZIP code is required",
+  "invalidZipCode": "Invalid ZIP code format",
+  
+  "unitedStates": "United States",
+  "canada": "Canada",
+  "unitedKingdom": "United Kingdom",
+  "germany": "Germany", 
+  "france": "France",
+  "spain": "Spain",
+  "italy": "Italy",
+  "australia": "Australia",
+  "japan": "Japan",
+
+  "signIn": "Sign In",
+  "signOut": "Sign Out",
+  "welcomeBack": "Welcome Back!",
+  "signInToYourAccount": "Sign in to your account",
+  "demoMode": "Demo Mode: Form pre-filled with test credentials. Just click \"Sign In\"!",
+  "email": "Email",
+  "password": "Password",
+  "prefilledEmailHelper": "Pre-filled with test account (john.doe@example.com)",
+  "prefilledPasswordHelper": "Pre-filled with test password (password123)",
+  "pleaseEnterEmail": "Please enter your email",
+  "pleaseEnterValidEmail": "Please enter a valid email",
+  "pleaseEnterPassword": "Please enter your password",
+  "passwordMustBe6Characters": "Password must be at least 6 characters",
+  "rememberMe": "Remember me",
+  "forgotPassword": "Forgot Password?",
+  "or": "or",
+  "continueWithGoogle": "Continue with Google",
+  "googleSignInNotImplemented": "Google Sign In would be implemented here",
+  "dontHaveAccount": "Don't have an account? ",
+  "signUp": "Sign Up",
+  "welcome": "Welcome!",
+  "successfullySignedIn": "You have successfully signed in",
+  "sessionInformation": "Session Information",
+  "signInTime": "Sign In Time",
+  "yes": "Yes",
+  "no": "No",
+  "ok": "OK",
+  "signInError": "Sign In Error",
+  "noAccountFound": "No account found with this email address",
+  "invalidCredentials": "Invalid email or password",
+  "signInGenericError": "An error occurred during sign in: {error}",
+  "@signInGenericError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "signInSuccess": "Sign In Success",
+  "signInSuccessMessage": "Welcome back! You have been signed in successfully.",
+  "signOutSuccess": "Sign Out Success",
+  "signOutMessage": "You have been signed out successfully.",
+  "forgotPasswordTitle": "Forgot Password",
+  "forgotPasswordMessage": "Password reset functionality would be implemented here. For this demo, please use the pre-filled credentials.",
+  "welcomeBackUser": "Welcome back, {firstName}!",
+  "@welcomeBackUser": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "loginFailed": "Login failed",
+
+  "shoppingCartWithCount": "Shopping Cart ({count})",
+  "@shoppingCartWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "refreshCart": "Refresh Cart",
+  "clearCart": "Clear Cart",
+  "yourCartIsEmpty": "Your cart is empty",
+  "addSomeItemsToGetStarted": "Add some items to get started",
+  "startShopping": "Start Shopping",
+  "itemsCount": "{count} Items",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalPrice": "Total: ${price}",
+  "@totalPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "itemsInCart": "{count} items",
+  "@itemsInCart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checkout": "Checkout",
+  "failedToLoadCartItems": "Failed to load cart items: {error}",
+  "@failedToLoadCartItems": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "retry": "RETRY",
+  "failedToUpdateQuantity": "Failed to update quantity: {error}",
+  "@failedToUpdateQuantity": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "itemRemovedFromCart": "Item removed from cart",
+  "failedToRemoveItem": "Failed to remove item: {error}",
+  "@failedToRemoveItem": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "clearCartConfirmation": "Are you sure you want to remove all items from your cart?",
+  "cancel": "Cancel",
+  "clear": "Clear",
+  "cartCleared": "Cart cleared",
+  "failedToClearCart": "Failed to clear cart: {error}",
+  "@failedToClearCart": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "yourCartIsEmptyCheckout": "Your cart is empty",
+  "myShoppingCart": "My Shopping Cart",
+  "quantity": "Qty",
+  "close": "Close",
+  "viewCart": "View Cart",
+
+  "registration": "Registration",
+  "createYourAccount": "Create Your Account",
+  "confirmPassword": "Confirm Password",
+  "agreeToTerms": "I agree to the Terms and Conditions",
+  "createAccount": "Create Account",
+  "creatingAccount": "Creating account...",
+  "alreadyHaveAccount": "Already have an account? ",
+  "clearForm": "Clear Form",
+  "welcomeRegistrationSuccess": "Welcome {firstName}! Registration successful!",
+  "@welcomeRegistrationSuccess": {
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationFailed": "Registration failed",
+  "pleaseAgreeToTerms": "Please agree to terms and conditions",
+  "userProfile": "User Profile",
+  "registrationSuccessful": "Registration Successful!",
+  "accountCreatedMessage": "Your account has been created successfully.",
+  "registerAnotherUser": "Register Another User",
+    "register": "Register",
+  
+  "createNewOrder": "Create New Order",
+  "orderCreationCancelled": "Order creation cancelled",
+  "each": "each",
+  "actionCancelled": "Action Cancelled",
+  "removedFromSelection": "removed from selection",
+  "addedToCart": "added to cart",
+  "failedToAddItemToCart": "Failed to add item to cart",
+  "itemsAddedToCart": "Items added to cart:",
+  "failedToAddItemsToCart": "Failed to add items to cart",
+  "cartError": "Cart Error",
+  "galleryFunctionality": "Gallery functionality would be implemented here",
+  "profilePictureRemoved": "Profile picture removed",
+  "locateNearbyGasStations": "Locate nearby gas stations",
+  "createTestOrder": "Create Test Order",
+  "inTransit": "In Transit",
+  "showingOrders": "Showing {count} orders",
+
+  "editProfile": "Edit Profile",
+  "saveChanges": "Save Changes",
+  "profileUpdatedSuccessfully": "Profile updated successfully!",
+  "cameraFunctionalityNotImplemented": "Camera functionality would be implemented here",
+  "personalInformation": "Personal Information",
+  "preferences": "Preferences",
+  "emailNotifications": "Email Notifications",
+  "receiveOrderUpdatesEmail": "Receive order updates via email",
+  "smsNotifications": "SMS Notifications",
+  "receiveOrderUpdatesSMS": "Receive order updates via SMS",
+  "marketingEmails": "Marketing Emails",
+  "receivePromotionalOffers": "Receive promotional offers",
+  "editMyInformation": "Edit My Information",
+  "profileEditingDescription": "This would navigate to a profile editing page where you can:",
+  "updatePersonalInfo": "• Update personal information",
+  "changeProfilePicture": "• Change profile picture",
+  "modifyContactDetails": "• Modify contact details",
+  "updatePreferences": "• Update preferences",
+  "all": "All",
+  "delivered": "Delivered", 
+  "cancelled": "Cancelled",
+  "refresh": "Refresh",
+  "sortByDate": "Date",
+  "sortByStatus": "Status",
+  "sortByTotal": "Total", 
+  "sortByID": "ID",
+  "addingToCart": "Adding to Cart...",
+  "continueToCart": "Continue to Cart ({amount})",
+  "@continueToCart": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "selectItemsFirst": "Select Items First",
+  "quantity": "Qty: {count}",
+  "@quantity": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectItemsForOrder": "Select Items for Your Order",
+  "chooseItemsDescription": "Choose from our available gas cylinders and accessories",
+  "menu": "Menu",
+  "settings": "Settings",
+  "about": "About",
+  "logout": "Logout",
+  "settingsTapped": "Settings tapped!",
+  "aboutTapped": "About tapped!",
+  "logoutTapped": "Logout tapped!",
+  "selectLanguage": "Select Language",
+  "signOut": "Sign Out",
+  "confirmSignOut": "Are you sure you want to sign out?"
+}

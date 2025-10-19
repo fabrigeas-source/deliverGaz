@@ -1,0 +1,36 @@
+# Development Dockerfile
+FROM node:18-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm ci && npm cache clean --force
+
+# Create uploads and logs directories
+RUN mkdir -p uploads logs
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S delivergaz -u 1001 -G nodejs
+
+# Set ownership of the app directory
+RUN chown -R delivergaz:nodejs /app
+
+# Switch to non-root user
+USER delivergaz
+
+# Expose port and debug port
+EXPOSE 4000 9229
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the development server with hot reload
+CMD ["npm", "run", "dev"]

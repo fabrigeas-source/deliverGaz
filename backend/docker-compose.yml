@@ -1,0 +1,115 @@
+services:
+  # DeliverGaz Backend API
+  delivergaz-backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: delivergaz-api
+    ports:
+      - "${PORT:-4000}:4000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/${DB_NAME:-delivergaz}
+      - DB_NAME=${DB_NAME:-delivergaz}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-30d}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+      - UPLOAD_PATH=uploads/
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-5242880}
+      - ALLOWED_FILE_TYPES=${ALLOWED_FILE_TYPES:-jpg,jpeg,png,gif,webp}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-15}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - delivergaz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); http.get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: delivergaz-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password123}
+      - MONGO_INITDB_DATABASE=${DB_NAME:-delivergaz}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - delivergaz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: ["mongod", "--auth"]
+
+  # MongoDB Express (Optional - Web-based MongoDB admin interface)
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: delivergaz-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ROOT_USERNAME:-admin}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ROOT_PASSWORD:-password123}
+      - ME_CONFIG_MONGODB_URL=mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-password123}@mongodb:27017/
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_USERNAME:-admin}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_PASSWORD:-admin123}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - delivergaz-network
+    restart: unless-stopped
+    profiles:
+      - tools
+
+  # Redis (Optional - for caching and session management)
+  redis:
+    image: redis:7.2-alpine
+    container_name: delivergaz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - delivergaz-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    profiles:
+      - cache
+
+# Networks
+networks:
+  delivergaz-network:
+    driver: bridge
+    name: delivergaz-network
+
+# Volumes for persistent data
+volumes:
+  mongodb_data:
+    name: delivergaz_mongodb_data
+  mongodb_config:
+    name: delivergaz_mongodb_config
+  redis_data:
+    name: delivergaz_redis_data
