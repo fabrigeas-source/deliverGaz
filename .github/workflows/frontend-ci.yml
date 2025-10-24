@@ -11,24 +11,12 @@ jobs:
     name: Analyze and Test (frontend)
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: frontend
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name: Frontend CI pipeline
+        uses: ./pipelines/frontend-ci
         with:
-          channel: stable
-
-      - name: Flutter pub get
-        run: flutter pub get
-
-      - name: Flutter analyze
-        run: flutter analyze
-
-      - name: Flutter tests
-        run: flutter test -r expanded
+          workdir: frontend
+          flutter-channel: stable
