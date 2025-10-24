@@ -303,18 +303,20 @@ jobs:
       - name: Notify Slack on Success
         if: needs.deploy-backend.result == 'success' && needs.deploy-frontend-web.result == 'success'
         uses: 8398a7/action-slack@v3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         with:
           status: success
           text: '🚀 DeliverGaz deployment successful!'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Notify Slack on Failure
         if: needs.deploy-backend.result == 'failure' || needs.deploy-frontend-web.result == 'failure'
         uses: 8398a7/action-slack@v3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         with:
           status: failure
           text: '❌ DeliverGaz deployment failed!'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
   # Performance Testing (Optional)
   performance-test:
