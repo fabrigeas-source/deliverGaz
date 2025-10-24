@@ -20,3 +20,5 @@ jobs:
         with:
           workdir: frontend
           flutter-channel: stable
+          workdir: frontend
+          flutter-channel: stable
