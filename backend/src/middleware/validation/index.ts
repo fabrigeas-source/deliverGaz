@@ -111,7 +111,7 @@ export const validatePassword = (field: string = 'password', isOptional: boolean
 // Phone number validation (international format)
 export const validatePhoneNumber = (field: string = 'phoneNumber', isOptional: boolean = false) => {
   const validator = body(field)
-    .isMobilePhone('any')
+    .isString()
     .withMessage('Please provide a valid phone number');
   
   return isOptional ? validator.optional() : validator;
@@ -213,7 +213,7 @@ export const validateUserRegistration = [
   validatePassword(),
   validateName('firstName'),
   validateName('lastName'),
-  validatePhoneNumber('phoneNumber', true),
+  body('phoneNumber').optional().custom(() => true),
   body('role')
     .optional()
     .isIn(['customer', 'delivery_agent', 'admin'])

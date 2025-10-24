@@ -2,20 +2,26 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ main ]
+    branches: ["**"]
+    paths:
+      - frontend/**
+      - pipelines/frontend-ci/**
+      - .github/workflows/frontend-ci.yml
   pull_request:
-    branches: [ main ]
+    paths:
+      - frontend/**
+      - pipelines/frontend-ci/**
+      - .github/workflows/frontend-ci.yml
 
 jobs:
   frontend:
-    name: Analyze and Test (frontend)
+    name: Analyze and test Flutter frontend
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Frontend CI pipeline
+      - name: Frontend CI (composite)
         uses: ./pipelines/frontend-ci
         with:
           workdir: frontend

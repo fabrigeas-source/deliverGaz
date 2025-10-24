@@ -2,31 +2,36 @@ name: Backend CI
 
 on:
   push:
-    branches: [ main ]
+    branches: ["**"]
+    paths:
+      - backend/**
+      - pipelines/backend-ci/**
+      - .github/workflows/backend-ci.yml
   pull_request:
-    branches: [ main ]
+    paths:
+      - backend/**
+      - pipelines/backend-ci/**
+      - .github/workflows/backend-ci.yml
 
 jobs:
   backend:
-    name: Build, Lint and Test (backend)
+    name: Lint, build and test backend
     runs-on: ubuntu-latest
 
     services:
-      mongo:
-        image: mongo:7.0
+      mongodb:
+        image: mongo:6
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })' || exit 1" \
-          --health-interval=5s \
-          --health-timeout=5s \
-          --health-retries=10
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\")'" \
+          --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Backend CI pipeline
+      - name: Backend CI (composite)
         uses: ./pipelines/backend-ci
         with:
           workdir: backend
@@ -34,4 +39,60 @@ jobs:
           cache-lock-path: backend/package-lock.json
           mongodb-uri: mongodb://127.0.0.1:27017/delivergaz_test
           db-name: delivergaz_test
- 
+name: Backend CI (composite)
+description: Lint, build and test the backend with Node.js
+inputs:
+  workdir:
+    description: Working directory for backend
+    required: false
+    default: backend
+  node-version:
+    description: Node.js version
+    required: false
+    default: '18'
+  cache-lock-path:
+    description: Path to package-lock.json for caching
+    required: false
+    default: backend/package-lock.json
+  mongodb-uri:
+    description: MongoDB URI for tests
+    required: false
+    default: mongodb://127.0.0.1:27017/delivergaz_test
+  db-name:
+    description: Database name for tests
+    required: false
+    default: delivergaz_test
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs['node-version'] }}
+        cache: npm
+        cache-dependency-path: ${{ inputs['cache-lock-path'] }}
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: |
+        if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+    - name: Lint
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: npm run lint
+
+    - name: TypeScript build
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: npm run build
+
+    - name: Run tests
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      env:
+        NODE_ENV: test
+        MONGODB_URI: ${{ inputs['mongodb-uri'] }}
+        DB_NAME: ${{ inputs['db-name'] }}
+      run: npm test -- --passWithNoTests

@@ -116,6 +116,8 @@ describe('Logger Middleware', () => {
       const statusCodes = [200, 201, 400, 401, 404, 500];
       
       statusCodes.forEach(statusCode => {
+        // Reset system time for each iteration to keep a consistent base
+        jest.setSystemTime(new Date('2024-01-01T12:00:00.000Z'));
         const req = mockRequest({
           method: 'GET',
           originalUrl: '/api/test',

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import productsRouter from './products.routes';
+import productsRouter from './products.route';
 
 // Create test app
 const app = express();

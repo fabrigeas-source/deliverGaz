@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import ordersRouter from './orders.routes';
+import ordersRouter from './orders.route';
 
 // Mock Express app setup
 const app = express();
