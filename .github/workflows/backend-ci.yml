@@ -22,35 +22,16 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Backend CI pipeline
+        uses: ./pipelines/backend-ci
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
-
-      - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
-
-      - name: Lint
-        run: npm run lint
-
-      - name: TypeScript build
-        run: npm run build
-
-      - name: Run tests (with local MongoDB)
-        env:
-          NODE_ENV: test
-          MONGODB_URI: mongodb://127.0.0.1:27017/delivergaz_test
-          DB_NAME: delivergaz_test
-        run: |
-          npm test -- --passWithNoTests
+          workdir: backend
+          node-version: '18'
+          cache-lock-path: backend/package-lock.json
+          mongodb-uri: mongodb://127.0.0.1:27017/delivergaz_test
+          db-name: delivergaz_test
+ 
