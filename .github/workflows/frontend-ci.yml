@@ -1,24 +1,33 @@
-name: Frontend CI
+name: Frontend CI (composite)
+description: Analyze and test the Flutter frontend
+inputs:
+  workdir:
+    description: Working directory for frontend
+    required: false
+    default: frontend
+  flutter-channel:
+    description: Flutter channel
+    required: false
+    default: stable
+runs:
+  using: composite
+  steps:
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: ${{ inputs['flutter-channel'] }}
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    - name: Flutter pub get
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: flutter pub get
 
-jobs:
-  frontend:
-    name: Analyze and Test (frontend)
-    runs-on: ubuntu-latest
+    - name: Flutter analyze
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: flutter analyze
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Frontend CI pipeline
-        uses: ./pipelines/frontend-ci
-        with:
-          workdir: frontend
-          flutter-channel: stable
-          workdir: frontend
-          flutter-channel: stable
+    - name: Flutter tests
+      shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: flutter test -r expanded
