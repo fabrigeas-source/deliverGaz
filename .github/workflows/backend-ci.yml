@@ -1,0 +1,56 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    name: Build, Lint and Test (backend)
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })' || exit 1" \
+          --health-interval=5s \
+          --health-timeout=5s \
+          --health-retries=10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript build
+        run: npm run build
+
+      - name: Run tests (with local MongoDB)
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://127.0.0.1:27017/delivergaz_test
+          DB_NAME: delivergaz_test
+        run: |
+          npm test -- --passWithNoTests

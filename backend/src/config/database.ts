@@ -16,7 +16,7 @@ export interface DatabaseConfig {
  * Database connection configuration
  */
 export const databaseConfig: DatabaseConfig = {
-  uri: process.env.MONGODB_URI || 'mongodb+srv://fabrigeas:<db_password>@delivergaz.lvonzed.mongodb.net/?retryWrites=true&w=majority&appName=deliverGaz',
+  uri: process.env.MONGODB_URI || 'mongodb+srv://fabrigeas:98919032@delivergaz.lvonzed.mongodb.net/',
   name: process.env.DB_NAME || 'delivergaz',
   options: {
     retryWrites: true,
@@ -29,7 +29,7 @@ export const databaseConfig: DatabaseConfig = {
  * Check if database URI has placeholder
  */
 export const hasValidDatabaseConfig = (): boolean => {
-  return !!(databaseConfig.uri && !databaseConfig.uri.includes('<db_password>'));
+  return !!(databaseConfig.uri && !databaseConfig.uri.includes('feugang'));
 };
 
 /**
@@ -41,8 +41,8 @@ export const getDatabaseUri = (): string => {
   }
 
   // Replace password placeholder if needed
-  if (databaseConfig.uri.includes('<db_password>') && process.env.DB_PASSWORD) {
-    return databaseConfig.uri.replace('<db_password>', process.env.DB_PASSWORD);
+  if (databaseConfig.uri.includes('feugang') && process.env.DB_PASSWORD) {
+    return databaseConfig.uri.replace('feugang', process.env.DB_PASSWORD);
   }
 
   return databaseConfig.uri;
