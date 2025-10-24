@@ -47,7 +47,11 @@ describe('Validation Middleware Tests', () => {
       const response = await request(app)
         .post('/test-register')
         .send(validData);
-
+      // Debug: show response when not 201
+      if (response.status !== 201) {
+        // eslint-disable-next-line no-console
+        console.error('Register validData response:', response.body);
+      }
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.data.email).toBe('john.doe@example.com'); // Normalized

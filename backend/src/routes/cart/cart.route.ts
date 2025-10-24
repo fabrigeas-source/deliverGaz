@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 
-const router = Router();
+const router = Router({ caseSensitive: true, strict: true });
 
 /**
  * @swagger
@@ -268,7 +268,7 @@ router.post('/add', async (req: Request, res: Response) => {
     // 8. Save cart and return updated data
 
     // Basic validation
-    if (!productId || !quantity) {
+    if ((!productId || productId === '') || (quantity === undefined || quantity === null)) {
       return res.status(400).json({
         success: false,
         message: 'Product ID and quantity are required',
@@ -276,6 +276,23 @@ router.post('/add', async (req: Request, res: Response) => {
           { field: 'productId', message: 'Product ID is required' },
           { field: 'quantity', message: 'Quantity is required' }
         ]
+      });
+    }
+
+    // Type and range validation
+    if (typeof quantity !== 'number' || Number.isNaN(quantity)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be a number',
+        errors: [{ field: 'quantity', message: 'Quantity must be a number' }]
+      });
+    }
+
+    if (!Number.isInteger(quantity)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be an integer',
+        errors: [{ field: 'quantity', message: 'Quantity must be an integer' }]
       });
     }
 
