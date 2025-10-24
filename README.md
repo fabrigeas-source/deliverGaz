@@ -2,6 +2,7 @@
 
 [![Backend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/frontend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/frontend-ci.yml)
+[![Backend Deploy](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-deploy.yml/badge.svg?branch=stage)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-deploy.yml)
 
 A modern full-stack gas delivery platform built with Flutter and Node.js, providing seamless gas ordering and delivery services across multiple platforms.
 
@@ -22,9 +23,9 @@ DeliverGaz is a comprehensive delivery application that connects customers with 
 
 ## 🏗️ Architecture
 
-This project follows a modern microservices architecture:
+This project follows a modern architecture:
 
-- **Frontend**: Flutter application (`/frontend/`)
+- **Frontend**: Flutter application (exclusively under `/frontend/`)
 - **Backend**: Node.js/Express API with TypeScript (`/backend/`)
 - **Database**: MongoDB Atlas with Mongoose ODM
 - **Documentation**: Comprehensive docs (`/docs/`)
@@ -109,7 +110,7 @@ DeliverGaz/
 
 ### Available Scripts
 
-**Frontend (Flutter)**
+**Frontend (Flutter) — lives in `frontend/`**
 ```bash
 flutter run -d windows     # Run on Windows
 flutter run -d chrome      # Run on Web
@@ -141,8 +142,8 @@ The app supports multiple languages. To add a new language:
 - 🏗️ [Architecture Guide](docs/ARCHITECTURE.md)
 - 🚀 [Deployment Guide](docs/DEPLOYMENT.md)
 - 📡 [API Documentation](docs/API.md)
-- 🌍 [Internationalization](INTERNATIONALIZATION.md)
-- 🛣️ [Path Aliasing](PATH_ALIASING.md)
+- 🌍 [Internationalization](frontend/INTERNATIONALIZATION.md)
+- 🛣️ [Path Aliasing](frontend/PATH_ALIASING.md)
 
 ## 🧪 Testing
 
