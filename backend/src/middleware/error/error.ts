@@ -8,7 +8,9 @@ interface ApiError extends Error {
 
 // Async handler wrapper
 export const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
+  return Promise.resolve()
+    .then(() => fn(req, res, next))
+    .catch(next);
 };
 
 // Global error handler
