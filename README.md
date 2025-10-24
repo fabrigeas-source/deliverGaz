@@ -1,5 +1,8 @@
 # DeliverGaz 🚚⛽
 
+[![Backend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/frontend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/frontend-ci.yml)
+
 A modern full-stack gas delivery platform built with Flutter and Node.js, providing seamless gas ordering and delivery services across multiple platforms.
 
 ## 🌟 Overview
@@ -47,7 +50,11 @@ This project follows a modern microservices architecture:
    ```bash
    # Start backend services
    cd backend
-   docker-compose up -d
+   # Prefer the helper script which handles Docker permissions gracefully
+   npm run start:docker
+
+   # Or use docker-compose directly
+   # docker-compose up -d
 
    # Start frontend development
    cd ../frontend
@@ -114,7 +121,10 @@ flutter test               # Run tests
 ```bash
 npm run dev               # Development with hot reload
 npm run build             # Build TypeScript
-npm run start             # Production start
+npm run start             # Production start (builds first, then runs dist/server.js)
+npm run start:docker      # Start backend via Docker Compose (auto-fallback for docker group perms)
+npm run stop:docker       # Stop Docker stack
+npm run logs:docker       # Follow Docker logs
 npm test                  # Run tests
 ```
 

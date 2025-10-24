@@ -1,5 +1,7 @@
 # DeliverGaz Backend
 
+[![Backend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml)
+
 A robust Node.js backend API for the DeliverGaz Flutter application, built with TypeScript, Express.js, and MongoDB Atlas.
 
 ## 🚀 Features
@@ -76,19 +78,28 @@ npm run dev
 npm run build
 
 # Start production server
-npm start
+npm start   # Note: this runs a TypeScript build before starting Node
 ```
 
 ### Docker Development
 
 ```bash
 # Using Docker Compose (recommended)
-docker-compose up -d
+npm run start:docker
+
+# Or use docker-compose directly
+# docker-compose up -d
 
 # Or build and run manually
 docker build -t delivergaz-backend .
 docker run -p 3000:3000 delivergaz-backend
 ```
+
+### Ports
+
+- Container port: 4000 (exposed)
+- Host port: 3000 (mapped by docker-compose)
+- Override host port for native runs with `PORT` environment variable.
 
 ## ⚙️ Configuration
 
@@ -330,7 +341,7 @@ npm run build:watch      # Build TypeScript in watch mode
 
 # Production
 npm run build           # Build for production
-npm start              # Start production server
+npm start              # Start production server (builds then runs)
 npm run clean          # Clean build directory
 
 # Testing & Linting
@@ -338,6 +349,11 @@ npm test               # Run tests
 npm run test:watch     # Run tests in watch mode
 npm run lint           # Lint TypeScript files
 npm run lint:fix       # Fix linting issues
+
+# Docker helpers
+npm run start:docker   # Start Docker stack (auto-fallback to newgrp docker)
+npm run stop:docker    # Stop Docker stack
+npm run logs:docker    # Follow Docker logs
 ```
 
 ## 🔐 Environment Variables
