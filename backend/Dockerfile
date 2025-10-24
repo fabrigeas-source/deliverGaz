@@ -4,11 +4,14 @@ FROM node:18-alpine
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available)
-COPY package*.json ./
+# Copy package.json (avoid potential package-lock.json auth issues)
+COPY package.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies with npm configuration
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config delete //registry.npmjs.org/:_authToken 2>/dev/null || true && \
+    npm install && \
+    npm cache clean --force
 
 # Copy the rest of the application code
 COPY . .

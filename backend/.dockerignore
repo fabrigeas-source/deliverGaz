@@ -11,6 +11,9 @@ yarn-error.log*
 .env.local
 .env.docker
 
+# Ignore npm configuration files
+.npmrc
+
 # Ignore build output
 dist
 build
