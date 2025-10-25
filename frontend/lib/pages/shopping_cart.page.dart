@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:deliver_gaz/l10n/app_localizations.dart';
 import 'package:deliver_gaz/models.dart';
 import 'package:deliver_gaz/services.dart';
-import 'payment.page.dart';
+import 'package:deliver_gaz/pages/payment.page.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
@@ -311,7 +311,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, -2),

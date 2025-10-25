@@ -392,7 +392,7 @@ class _EditUserInformationPageState extends State<EditUserInformationPage> {
         
         // Gender Dropdown
         DropdownButtonFormField<String>(
-          value: _selectedGender,
+          initialValue: _selectedGender,
           decoration: InputDecoration(
             labelText: i10n.gender,
             prefixIcon: const Icon(Icons.wc),
@@ -497,7 +497,7 @@ class _EditUserInformationPageState extends State<EditUserInformationPage> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedCountry,
+          initialValue: _selectedCountry,
           decoration: InputDecoration(
             labelText: i10n.country,
             prefixIcon: const Icon(Icons.public),
