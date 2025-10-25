@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Frontend CI (composite)
+      - name: Frontend CI pipeline
         uses: ./pipelines/frontend-ci
         with:
           workdir: frontend
