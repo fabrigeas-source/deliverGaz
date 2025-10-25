@@ -22,6 +22,7 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   int _selectedPaymentMethod = 0;
   bool _isProcessingPayment = false;
+  String _selectedDeliveryOption = 'standard';
   
   // Form controllers
   final _cardNumberController = TextEditingController();
@@ -194,32 +195,30 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildPaymentMethods() {
-    return RadioGroup<int>(
-      value: _selectedPaymentMethod,
-      onChanged: (value) {
-        setState(() {
-          _selectedPaymentMethod = value;
-        });
-      },
-      child: Column(
-        children: _paymentMethods.map((method) {
-          return Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: RadioListTile<int>(
-              value: method.id,
-              title: Row(
-                children: [
-                  Icon(method.icon, size: 24),
-                  const SizedBox(width: 12),
-                  Text(method.name),
-                ],
-              ),
-              subtitle: Text(method.description),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return Column(
+      children: _paymentMethods.map((method) {
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: RadioListTile<int>(
+            value: method.id,
+            groupValue: _selectedPaymentMethod,
+            onChanged: (value) {
+              setState(() {
+                _selectedPaymentMethod = value ?? 0;
+              });
+            },
+            title: Row(
+              children: [
+                Icon(method.icon, size: 24),
+                const SizedBox(width: 12),
+                Text(method.name),
+              ],
             ),
-          );
-        }).toList(),
-      ),
+            subtitle: Text(method.description),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -551,30 +550,36 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               const SizedBox(height: 12),
               
-              RadioGroup<String>(
-                value: 'standard',
-                onChanged: (value) {
-                  // Currently only standard delivery is supported
-                },
-                child: Column(
-                  children: [
-                    RadioListTile<String>(
-                      title: Text(i10n.standardDelivery),
-                      subtitle: Text(i10n.standardDeliveryDesc),
-                      value: 'standard',
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    
-                    RadioListTile<String>(
-                      title: Text(i10n.expressDelivery),
-                      subtitle: Text(i10n.expressDeliveryDesc),
-                      value: 'express',
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ],
-                ),
+              Column(
+                children: [
+                  RadioListTile<String>(
+                    value: 'standard',
+                    groupValue: _selectedDeliveryOption,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDeliveryOption = value ?? 'standard';
+                      });
+                    },
+                    title: Text(i10n.standardDelivery),
+                    subtitle: Text(i10n.standardDeliveryDesc),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  
+                  RadioListTile<String>(
+                    value: 'express',
+                    groupValue: _selectedDeliveryOption,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDeliveryOption = value ?? 'standard';
+                      });
+                    },
+                    title: Text(i10n.expressDelivery),
+                    subtitle: Text(i10n.expressDeliveryDesc),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ],
               ),
             ],
           ),
