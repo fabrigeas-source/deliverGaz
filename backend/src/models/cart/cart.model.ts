@@ -445,5 +445,5 @@ CartSchema.statics.cleanupExpiredCarts = function() {
 /**
  * Export the model
  */
-export const Cart = model<ICart, ICartModel>('Cart', CartSchema as Schema<ICart, ICartModel>);
+export const Cart = model<ICart>('Cart', CartSchema) as ICartModel;
 export default Cart;
