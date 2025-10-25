@@ -3,6 +3,7 @@
 [![Backend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/frontend-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/frontend-ci.yml)
 [![Backend Deploy](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-deploy.yml/badge.svg?branch=stage)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/backend-deploy.yml)
+[![Umbrella CI](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/umbrella-ci.yml/badge.svg?branch=main)](https://github.com/fabrigeas-source/deliverGaz/actions/workflows/umbrella-ci.yml)
 
 A modern full-stack gas delivery platform built with Flutter and Node.js, providing seamless gas ordering and delivery services across multiple platforms.
 
@@ -105,6 +106,24 @@ DeliverGaz/
 ├── 🐳 Docker files      # Container configurations
 └── 📋 Configuration     # Project setup files
 ```
+
+## ⚙️ CI/CD Workflows
+
+This repository uses small, focused workflows plus an umbrella orchestrator. Reusable steps live in `pipelines/` as composite actions.
+
+- Workflows
+   - `backend-ci.yml`: Lint, build, and test the backend (runs on backend changes; manual run supported)
+   - `frontend-ci.yml`: Analyze and test the Flutter frontend (runs on frontend changes; manual run supported)
+   - `umbrella-ci.yml`: Runs both backend and frontend pipelines on `main`/`develop` and on manual dispatch
+   - `backend-deploy.yml`: Builds the backend image and deploys to EC2 on `stage`
+
+- Reusable composites (DRY building blocks)
+   - `pipelines/backend-ci`: Node setup, install, lint, build, test
+   - `pipelines/frontend-ci`: Flutter setup, pub get, analyze, test
+   - `pipelines/docker-build-push`: Buildx + login + build/push
+   - `pipelines/ec2-ssh-deploy`: SSH to EC2, docker login/pull, restart container
+
+You can trigger any CI workflow manually from the Actions tab via “Run workflow”.
 
 ## 🔧 Development
 

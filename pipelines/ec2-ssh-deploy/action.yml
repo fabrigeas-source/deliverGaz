@@ -1,0 +1,76 @@
+name: EC2 SSH Deploy (composite)
+description: Deploy container to EC2 host over SSH
+inputs:
+  host:
+    description: EC2 host address
+    required: true
+  username:
+    description: SSH username
+    required: true
+  key:
+    description: SSH private key
+    required: true
+  port:
+    description: SSH port
+    required: false
+    default: '22'
+  image:
+    description: Image to deploy (e.g., ghcr.io/owner/repo:tag)
+    required: true
+  ghcr-username:
+    description: GHCR username for docker login
+    required: true
+  ghcr-pat:
+    description: GHCR personal access token for docker login
+    required: true
+  app-name:
+    description: Container name
+    required: true
+  host-port:
+    description: Host port to expose
+    required: true
+  container-port:
+    description: Container port
+    required: true
+  env-file:
+    description: Path to .env file on remote host
+    required: true
+  network:
+    description: Docker network name
+    required: false
+    default: delivergaz-network
+runs:
+  using: composite
+  steps:
+    - name: Deploy over SSH
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ inputs.host }}
+        username: ${{ inputs.username }}
+        key: ${{ inputs.key }}
+        port: ${{ inputs.port }}
+        script: |
+          set -e
+          echo "Logging into GHCR"
+          echo ${{ inputs.ghcr-pat }} | docker login ghcr.io -u ${{ inputs.ghcr-username }} --password-stdin
+
+          echo "Ensuring Docker network exists"
+          docker network inspect ${{ inputs.network }} >/dev/null 2>&1 || docker network create ${{ inputs.network }}
+
+          echo "Pull latest image: ${{ inputs.image }}"
+          docker pull ${{ inputs.image }}
+
+          echo "Stop and remove existing container if present"
+          docker ps -aq --filter name=${{ inputs.app-name }} | xargs -r docker stop
+          docker ps -aq --filter name=${{ inputs.app-name }} | xargs -r docker rm
+
+          echo "Ensure env file exists"
+          test -f "${{ inputs.env-file }}"
+
+          echo "Run new container"
+          docker run -d --name ${{ inputs.app-name }} \
+            --restart unless-stopped \
+            --env-file "${{ inputs.env-file }}" \
+            -p ${{ inputs.host-port }}:${{ inputs.container-port }} \
+            --network ${{ inputs.network }} \
+            ${{ inputs.image }}
