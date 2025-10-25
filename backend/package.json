@@ -1,6 +1,6 @@
 {
   "name": "delivergaz-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MERN stack backend for DeliverGaz Flutter application with TypeScript",
   "main": "dist/server.js",
   "scripts": {
