@@ -1,38 +1,21 @@
-# Updated GitHub Actions workflow: Build image for backend and deploy to EC2 over SSH.
-# Changes made:
-# - Fixed branch mismatch so deploy runs when the workflow is triggered for the 'stage' branch.
-# - Aligned container port to 3000 (matches typical Dockerfile / app default).
-# - Added a check to ensure a remote .env file exists before starting the container.
-# - Kept GHCR login/pull on the remote host using secrets (GHCR_PAT + GHCR_USERNAME).
-# - Small robustness improvements (network create, stop/remove existing container).
-#
-# NOTE: Fill the required secrets in the repository:
-# - EC2_HOST, EC2_USER, EC2_SSH_KEY, EC2_PORT (optional)
-# - GHCR_PAT (token with read:packages), GHCR_USERNAME
-# The runner uses the GITHUB_TOKEN to push to GHCR in the build step (packages: write permission is required).
-
-name: Backend Docker Build & Deploy
+name: Release
 
 on:
   push:
     branches: [ stage ]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend-deploy.yml'
   workflow_dispatch:
 
 concurrency:
-  group: backend-deploy-${{ github.ref }}
+  group: release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-push:
-    name: Build and push image to GHCR
+    name: Build and push backend image to GHCR
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,7 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     if: ${{ github.ref == 'refs/heads/stage' }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,7 +47,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT || '22' }}
+          port: ${{ secrets.EC2_PORT != '' && secrets.EC2_PORT || '22' }}
           image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
           ghcr-username: ${{ secrets.GHCR_USERNAME }}
           ghcr-pat: ${{ secrets.GHCR_PAT }}
