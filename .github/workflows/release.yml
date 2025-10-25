@@ -4,6 +4,15 @@ on:
   push:
     branches: [ stage ]
   workflow_dispatch:
+    inputs:
+      deploy_only:
+        description: "Run only the deploy job (skip bump/build)"
+        required: false
+        default: "false"
+      image_tag:
+        description: "Image tag to deploy when deploy_only=true (e.g., latest or a SHA)"
+        required: false
+        default: "latest"
 
 concurrency:
   group: release-${{ github.ref }}
@@ -23,20 +32,20 @@ jobs:
           fetch-depth: 0
 
       - name: Configure Git user (release bump)
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Fetch tags
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: git fetch --tags --force
 
       - name: Determine versions
         id: versions
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -56,7 +65,7 @@ jobs:
           echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
 
       - name: Update backend version
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           tmp_pkg=$(mktemp)
@@ -64,13 +73,13 @@ jobs:
           mv "$tmp_pkg" backend/package.json
 
       - name: Update frontend version
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           sed -i -E "s/^version: [0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?/version: ${{ steps.versions.outputs.new_version }}\1/" frontend/pubspec.yaml
 
       - name: Update CHANGELOG.md
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -96,7 +105,7 @@ jobs:
           mv CHANGELOG.md.new CHANGELOG.md
 
       - name: Commit version and changelog
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           git add backend/package.json frontend/pubspec.yaml CHANGELOG.md
@@ -108,7 +117,7 @@ jobs:
           fi
 
       - name: Create and push tag
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
         shell: bash
         run: |
           if git tag -l "v${{ steps.versions.outputs.new_version }}" | grep -q .; then
@@ -176,7 +185,7 @@ jobs:
     name: Deploy to EC2
     runs-on: ubuntu-latest
     needs: build-and-push-backend
-    if: ${{ github.ref == 'refs/heads/stage' && github.event_name != 'workflow_dispatch' }}
+    if: ${{ (github.ref == 'refs/heads/stage' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only == 'true') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -191,11 +200,24 @@ jobs:
             echo "port=22" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Resolve image to deploy
+        id: image
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
+            tag="${{ github.event.inputs.image_tag }}"
+            if [[ -z "$tag" ]]; then tag="latest"; fi
+          else
+            tag="latest"
+          fi
+          echo "image=ghcr.io/${{ github.repository_owner }}/delivergaz-backend:${tag}" >> "$GITHUB_OUTPUT"
+
       - name: Show deployment parameters
         shell: bash
         run: |
           echo "ref: ${{ github.ref }} (name: ${{ github.ref_name }})"
-          echo "image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest"
+          echo "manual deploy_only: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only }}"
+          echo "image: ${{ steps.image.outputs.image }}"
           echo "container port mapping: 3000:3000"
           echo "ssh port (effective): ${{ steps.port.outputs.port }}"
           if [[ -n "${{ secrets.EC2_HOST }}" ]]; then echo "EC2_HOST: set"; else echo "EC2_HOST: not set"; fi
@@ -221,12 +243,13 @@ jobs:
             sudo chown -R $USER:$USER /opt/delivergaz
             cat > /tmp/.env <<'EOF'
             NODE_ENV=production
-            sudo tee /opt/delivergaz/backend/.env > /dev/null <<EOF
-            NODE_ENV=production
             PORT=3000
             MONGO_URI=${{ secrets.MONGO_URI }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EOF
+            sudo mv /tmp/.env /opt/delivergaz/backend/.env
+            sudo chown root:root /opt/delivergaz/backend/.env
+            sudo chmod 600 /opt/delivergaz/backend/.env
 
       - name: Deploy to EC2
         uses: ./pipelines/ec2-ssh-deploy
@@ -235,7 +258,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ steps.port.outputs.port }}
-          image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
+          image: ${{ steps.image.outputs.image }}
           ghcr-username: ${{ secrets.GHCR_USERNAME }}
           ghcr-pat: ${{ secrets.GHCR_PAT }}
           app-name: delivergaz-api
