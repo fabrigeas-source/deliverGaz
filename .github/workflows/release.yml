@@ -20,7 +20,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build and push image
+      - name: Setup Flutter (stable)
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Frontend - flutter pub get
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Frontend - build web (release)
+        working-directory: frontend
+        run: flutter build web --release --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL_PROD }}
+
+      - name: Publish web build to backend/public
+        shell: bash
+        run: |
+          mkdir -p backend/public
+          find backend/public -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          cp -a frontend/build/web/. backend/public/
+
+      - name: Build and push Backend image
         uses: ./pipelines/docker-build-push
         with:
           context: ./backend
