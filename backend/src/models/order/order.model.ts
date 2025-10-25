@@ -104,7 +104,7 @@ const OrderSchema = new Schema<IOrder>({
     type: String,
     maxlength: 500
   }
-}, {
+} as any, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }

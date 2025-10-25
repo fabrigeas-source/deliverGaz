@@ -166,7 +166,7 @@ const AddressSchema = new Schema<IAddress>({
     enum: ['Home', 'Work', 'Other'],
     default: 'Other'
   }
-}, { _id: true });
+} as any, { _id: true });
 
 /**
  * User Schema
@@ -325,7 +325,7 @@ const UserSchema = new Schema<IUser>({
   },
   lastLoginAt: Date,
   lastActiveAt: { type: Date, default: Date.now }
-}, {
+} as any, {
   timestamps: true,
   toJSON: { 
     virtuals: true,

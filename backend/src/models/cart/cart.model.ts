@@ -101,7 +101,7 @@ const CartItemSchema = new Schema<ICartItem>({
     type: Date,
     default: Date.now
   }
-}, {
+} as any, {
   _id: false // Don't create separate _id for subdocuments
 });
 
@@ -165,14 +165,14 @@ const CartSchema = new Schema<ICart>({
   },
   expiresAt: {
     type: Date,
-    default: function() {
+    default: function(this: any) {
       // Cart expires after 30 days for logged-in users, 7 days for guests
       const days = this.userId ? 30 : 7;
       return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
     },
     index: { expireAfterSeconds: 0 } // MongoDB TTL index
   }
-}, {
+} as any, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
@@ -445,5 +445,5 @@ CartSchema.statics.cleanupExpiredCarts = function() {
 /**
  * Export the model
  */
-export const Cart = model<ICart, ICartModel>('Cart', CartSchema);
+export const Cart = model<ICart, ICartModel>('Cart', CartSchema as any);
 export default Cart;

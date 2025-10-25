@@ -120,7 +120,7 @@ const ProductSchema = new Schema<IProduct>({
     default: 'active',
     index: true
   }
-}, {
+} as any, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
