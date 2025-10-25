@@ -101,7 +101,7 @@ const CartItemSchema = new Schema<ICartItem>({
     type: Date,
     default: Date.now
   }
-} as any, {
+} as SchemaDefinition<ICartItem>, {
   _id: false // Don't create separate _id for subdocuments
 });
 
