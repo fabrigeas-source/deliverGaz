@@ -12,6 +12,7 @@ on:
       - backend/**
       - pipelines/backend-ci/**
       - .github/workflows/backend-ci.yml
+  workflow_dispatch:
 
 jobs:
   backend:

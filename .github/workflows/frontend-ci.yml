@@ -12,6 +12,7 @@ on:
       - frontend/**
       - pipelines/frontend-ci/**
       - .github/workflows/frontend-ci.yml
+  workflow_dispatch:
 
 jobs:
   frontend:
