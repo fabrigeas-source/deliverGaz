@@ -644,7 +644,7 @@ If you encounter `ssh: handshake failed` or `ssh: unable to authenticate` errors
 -----END OPENSSH PRIVATE KEY-----
 
 # ✗ Incorrect format (single line without proper line breaks):
------BEGIN OPENSSH PRIVATE KEY----- <YOUR_KEY_CONTENT_ALL_ON_ONE_LINE> -----END OPENSSH PRIVATE KEY-----
+-----BEGIN OPENSSH PRIVATE KEY-----<YOUR_KEY_CONTENT_ALL_ON_ONE_LINE>-----END OPENSSH PRIVATE KEY-----
 
 # When adding the key to GitHub Secrets:
 # 1. Copy the entire key file content (including headers and footers)
