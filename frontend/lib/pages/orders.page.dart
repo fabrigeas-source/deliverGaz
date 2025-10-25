@@ -132,11 +132,11 @@ class _OrdersPageState extends State<OrdersPage> {
           PopupMenuButton<String>(
             onSelected: (value) async {
               // Store context-dependent values before async operation
+              final messenger = ScaffoldMessenger.of(context);
               final refreshMessage = i10n.refreshOrders;
               
               switch (value) {
                 case 'refresh':
-                  final messenger = ScaffoldMessenger.of(context);
                   await _loadOrders();
                   if (mounted) {
                     messenger.showSnackBar(
