@@ -295,7 +295,7 @@ jobs:
           script: |
             set -euo pipefail
             sudo mkdir -p /opt/delivergaz/backend
-            sudo mv "${{ env.REMOTE_TMP_DIR }}/.env" /opt/delivergaz/backend/.env
+            sudo mv "${{ env.REMOTE_TMP_DIR }}" /opt/delivergaz/backend/.env
             sudo chown root:root /opt/delivergaz/backend/.env
             sudo chmod 600 /opt/delivergaz/backend/.env
             rm -rf "${{ env.REMOTE_TMP_DIR }}"
