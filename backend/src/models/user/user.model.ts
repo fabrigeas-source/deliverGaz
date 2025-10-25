@@ -3,7 +3,7 @@
  * Manages user authentication and profile data for DeliverGaz application
  */
 
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, type SchemaDefinition } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 /**
@@ -111,7 +111,7 @@ export interface IUser extends Document {
 /**
  * Address Schema
  */
-const AddressSchema: any = new Schema({
+const addressDefinition: SchemaDefinition<IAddress> = {
   street: {
     type: String,
     required: [true, 'Street address is required'],
@@ -166,12 +166,14 @@ const AddressSchema: any = new Schema({
     enum: ['Home', 'Work', 'Other'],
     default: 'Other'
   }
-} as any, { _id: true });
+};
+
+const AddressSchema = new Schema(addressDefinition, { _id: true });
 
 /**
  * User Schema
  */
-const UserSchema: any = new Schema({
+const UserSchema = new Schema<IUser>({
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -370,7 +372,7 @@ UserSchema.virtual('isLocked').get(function(this: IUser) {
 /**
  * Pre-save middleware
  */
-UserSchema.pre('save', async function(this: IUser, next: (err?: any) => void) {
+UserSchema.pre('save', async function(this: IUser, next) {
   // Hash password if modified
   if (this.isModified('password')) {
     const salt = await bcrypt.genSalt(12);
@@ -621,5 +623,5 @@ UserSchema.statics.cleanupUnverifiedAccounts = function() {
 /**
  * Export the model
  */
-export const User = model<IUser>('User', UserSchema as any);
+export const User = model<IUser>('User', UserSchema);
 export default User;

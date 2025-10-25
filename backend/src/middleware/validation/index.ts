@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { body, param, query, validationResult, ValidationChain } from 'express-validator';
+import { body, param, query, validationResult, ValidationChain, type ValidationError as EVValidationError } from 'express-validator';
 
 /**
  * Multer file interface
@@ -60,11 +60,11 @@ export const handleValidationErrors = (
   const errors = validationResult(req);
   
   if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map(error => ({
-      field: error.type === 'field' ? (error as any).path : 'unknown',
-      value: (error as any).value,
+    const formattedErrors = errors.array().map((error: EVValidationError) => ({
+      field: error.type === 'field' ? error.path : 'unknown',
+      value: error.type === 'field' ? error.value : undefined,
       message: error.msg,
-      location: (error as any).location || 'body'
+      location: error.type === 'field' ? error.location : 'body'
     }));
 
     const response: ValidationError = {
@@ -562,28 +562,29 @@ export const validateFileUpload = (
 // Sanitization helper
 export const sanitizeInput = (req: Request, res: Response, next: NextFunction): void => {
   // Remove any potentially dangerous characters from string inputs
-  const sanitize = (obj: any): any => {
-    if (typeof obj === 'string') {
-      return obj.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  const sanitize = (input: unknown): unknown => {
+    if (typeof input === 'string') {
+      return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     }
-    if (Array.isArray(obj)) {
-      return obj.map(sanitize);
+    if (Array.isArray(input)) {
+      return input.map((v) => sanitize(v));
     }
-    if (typeof obj === 'object' && obj !== null) {
-      const sanitized: any = {};
-      for (const key in obj) {
+    if (typeof input === 'object' && input !== null) {
+      const obj = input as Record<string, unknown>;
+      const sanitized: Record<string, unknown> = {};
+      for (const key of Object.keys(obj)) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          sanitized[key] = sanitize((obj as any)[key]);
+          sanitized[key] = sanitize(obj[key]);
         }
       }
       return sanitized;
     }
-    return obj;
+    return input;
   };
 
-  req.body = sanitize(req.body);
-  req.query = sanitize(req.query);
-  req.params = sanitize(req.params);
+  req.body = sanitize(req.body) as typeof req.body;
+  req.query = sanitize(req.query) as typeof req.query;
+  req.params = sanitize(req.params) as typeof req.params;
   
   next();
 };
