@@ -1,43 +1,45 @@
-# Updated GitHub Actions workflow: Build image for backend and deploy to EC2 over SSH.
-# Changes made:
-# - Fixed branch mismatch so deploy runs when the workflow is triggered for the 'stage' branch.
-# - Aligned container port to 3000 (matches typical Dockerfile / app default).
-# - Added a check to ensure a remote .env file exists before starting the container.
-# - Kept GHCR login/pull on the remote host using secrets (GHCR_PAT + GHCR_USERNAME).
-# - Small robustness improvements (network create, stop/remove existing container).
-#
-# NOTE: Fill the required secrets in the repository:
-# - EC2_HOST, EC2_USER, EC2_SSH_KEY, EC2_PORT (optional)
-# - GHCR_PAT (token with read:packages), GHCR_USERNAME
-# The runner uses the GITHUB_TOKEN to push to GHCR in the build step (packages: write permission is required).
-
-name: Backend Docker Build & Deploy
+name: Release
 
 on:
   push:
     branches: [ stage ]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend-deploy.yml'
   workflow_dispatch:
 
 concurrency:
-  group: backend-deploy-${{ github.ref }}
+  group: release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-push:
-    name: Build and push image to GHCR
+  build-and-push-backend:
+    name: Build and push backend image to GHCR
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build and push image
+      - name: Setup Flutter (stable)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Frontend - flutter pub get
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Frontend - build web (release)
+        working-directory: frontend
+        run: flutter build web --release --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL_PROD }}
+
+      - name: Publish web build to backend/public
+        shell: bash
+        run: |
+          rm -rf backend/public && mkdir -p backend/public
+          cp -a frontend/build/web/. backend/public/
+
+      - name: Build and push Backend image
         uses: ./pipelines/docker-build-push
         with:
           context: ./backend
@@ -52,9 +54,8 @@ jobs:
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: [build-and-push-backend]
     if: ${{ github.ref == 'refs/heads/stage' }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
