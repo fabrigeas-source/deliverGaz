@@ -58,9 +58,7 @@ jobs:
           fi
           echo "Base version: $base_version"
           IFS='.' read -r major minor patch <<< "$base_version"
-          if [[ -z "${major:-}" || -z "${minor:-}" || -z "${patch:-}" ]]; then
-            major=1; minor=0; patch=0
-          fi
+          major=${major:-1}; minor=${minor:-0}; patch=${patch:-0}
           new_version="${major}.${minor}.$((patch+1))"
           echo "New version: $new_version"
           echo "last_tag=$last_tag" >> "$GITHUB_OUTPUT"
