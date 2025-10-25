@@ -625,6 +625,72 @@ lsof -i :3000
 kill -9 $(lsof -t -i:3000)
 ```
 
+#### CI/CD and Deployment Issues
+
+1. **SSH Authentication Failures**
+
+If you encounter `ssh: handshake failed` or `ssh: unable to authenticate` errors during deployment:
+
+```bash
+# Ensure your EC2_SSH_KEY secret is properly formatted
+# The SSH private key should include the full PEM format with line breaks:
+
+# ✓ Correct format (example with placeholder content):
+-----BEGIN OPENSSH PRIVATE KEY-----
+<YOUR_KEY_CONTENT_LINE_1>
+<YOUR_KEY_CONTENT_LINE_2>
+<YOUR_KEY_CONTENT_LINE_3>
+... (multiple lines with line breaks preserved)
+-----END OPENSSH PRIVATE KEY-----
+
+# ✗ Incorrect format (single line without proper line breaks):
+-----BEGIN OPENSSH PRIVATE KEY-----<YOUR_KEY_CONTENT_ALL_ON_ONE_LINE>-----END OPENSSH PRIVATE KEY-----
+
+# When adding the key to GitHub Secrets:
+# 1. Copy the entire key file content (including headers and footers)
+# 2. Ensure line breaks are preserved
+# 3. Do not add extra spaces or characters
+```
+
+**Testing SSH Key Format:**
+```bash
+# On your local machine, verify the key format:
+cat ~/.ssh/your-key.pem
+
+# Test SSH connection manually:
+ssh -i ~/.ssh/your-key.pem -p 22 username@your-ec2-host
+
+# Validate key format:
+ssh-keygen -l -f ~/.ssh/your-key.pem
+```
+
+**GitHub Actions Workflow Requirements:**
+- Workflow uses `appleboy/ssh-action@v1.2.2` (latest stable version)
+- Secrets required: `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`
+- Optional: `EC2_PORT` (defaults to 22)
+
+2. **Docker Login Issues on EC2**
+```bash
+# If deployment fails during docker login
+# Ensure GHCR credentials are correct
+echo $GHCR_PAT | docker login ghcr.io -u $GHCR_USERNAME --password-stdin
+
+# Check if logged in
+docker info | grep Username
+```
+
+3. **Container Not Starting**
+```bash
+# Check container logs
+docker logs delivergaz-api
+
+# Check if port is already in use
+sudo lsof -i :3000
+
+# Verify env file exists
+ls -la /opt/delivergaz/backend/.env
+```
+
 #### Frontend Issues
 
 1. **Build Issues**

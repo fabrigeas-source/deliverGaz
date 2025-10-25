@@ -43,7 +43,7 @@ runs:
   using: composite
   steps:
     - name: Deploy over SSH
-      uses: appleboy/ssh-action@v0.1.10
+      uses: appleboy/ssh-action@v1.2.2
       with:
         host: ${{ inputs.host }}
         username: ${{ inputs.username }}
