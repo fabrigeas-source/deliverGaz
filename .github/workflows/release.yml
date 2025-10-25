@@ -67,6 +67,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build and push Backend image
+        uses: ./pipelines/docker-build-push
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
+            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:${{ github.sha }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
@@ -107,7 +119,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ steps.port.outputs.port }}
+          port: ${{ secrets.EC2_PORT || '22' }}
           image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
           ghcr-username: ${{ secrets.GHCR_USERNAME }}
           ghcr-pat: ${{ secrets.GHCR_PAT }}
