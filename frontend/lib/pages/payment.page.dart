@@ -20,8 +20,11 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  static const String _defaultDeliveryOption = 'standard';
+  
   int _selectedPaymentMethod = 0;
   bool _isProcessingPayment = false;
+  String _selectedDeliveryOption = _defaultDeliveryOption;
   
   // Form controllers
   final _cardNumberController = TextEditingController();
@@ -203,7 +206,7 @@ class _PaymentPageState extends State<PaymentPage> {
             groupValue: _selectedPaymentMethod,
             onChanged: (value) {
               setState(() {
-                _selectedPaymentMethod = value!;
+                _selectedPaymentMethod = value ?? 0;
               });
             },
             title: Row(
@@ -552,25 +555,29 @@ class _PaymentPageState extends State<PaymentPage> {
               Column(
                 children: [
                   RadioListTile<String>(
+                    value: 'standard',
+                    groupValue: _selectedDeliveryOption,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDeliveryOption = value ?? _defaultDeliveryOption;
+                      });
+                    },
                     title: Text(i10n.standardDelivery),
                     subtitle: Text(i10n.standardDeliveryDesc),
-                    value: 'standard',
-                    groupValue: 'standard',
-                    onChanged: (value) {
-                      // Currently only standard delivery is supported
-                    },
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
                   
                   RadioListTile<String>(
+                    value: 'express',
+                    groupValue: _selectedDeliveryOption,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDeliveryOption = value ?? _defaultDeliveryOption;
+                      });
+                    },
                     title: Text(i10n.expressDelivery),
                     subtitle: Text(i10n.expressDeliveryDesc),
-                    value: 'express',
-                    groupValue: 'standard',
-                    onChanged: (value) {
-                      // Currently only standard delivery is supported
-                    },
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
