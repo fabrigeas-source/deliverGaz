@@ -205,6 +205,8 @@ jobs:
     name: Deploy to EC2
     runs-on: ubuntu-latest
     if: ${{ env.ON_STAGE == 'true' && (env.IS_PUSH == 'true' || (env.IS_MANUAL == 'true' && env.MODE == 'deploy-only')) }}
+    env:
+      REMOTE_TMP_DIR: /tmp/delivergaz-backend-env-${{ github.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -269,7 +271,19 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ steps.port.outputs.port }}
           source: "backend/.env"
-          target: "/tmp/.env"
+          target: "${{ env.REMOTE_TMP_DIR }}/.env"
+
+      - name: Prepare remote temp dir on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ steps.port.outputs.port }}
+          script: |
+            set -euo pipefail
+            mkdir -p "${{ env.REMOTE_TMP_DIR }}"
+            chmod 700 "${{ env.REMOTE_TMP_DIR }}"
 
       - name: Move .env into place on EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -281,9 +295,10 @@ jobs:
           script: |
             set -euo pipefail
             sudo mkdir -p /opt/delivergaz/backend
-            sudo mv /tmp/.env /opt/delivergaz/backend/.env
+            sudo mv "${{ env.REMOTE_TMP_DIR }}/.env" /opt/delivergaz/backend/.env
             sudo chown root:root /opt/delivergaz/backend/.env
             sudo chmod 600 /opt/delivergaz/backend/.env
+            rm -rf "${{ env.REMOTE_TMP_DIR }}"
 
       - name: Deploy to EC2
         uses: ./pipelines/ec2-ssh-deploy
