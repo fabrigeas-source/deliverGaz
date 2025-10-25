@@ -407,7 +407,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
             // Gender Dropdown
             DropdownButtonFormField<String>(
-              initialValue: _selectedGender,
+              value: _selectedGender,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.gender,
                 prefixIcon: const Icon(Icons.wc),

@@ -311,7 +311,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
+            color: Colors.grey.withOpacity(0.3),
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, -2),
@@ -459,6 +459,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             onPressed: () async {
               Navigator.pop(context);
               
+              final l10n = AppLocalizations.of(context)!;
+              final messenger = ScaffoldMessenger.of(context);
+              
               try {
                 final cartApiClient = CartApiClient();
                 await cartApiClient.clearCart();
@@ -468,8 +471,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 });
                 
                 if (mounted) {
-                  final l10n = AppLocalizations.of(context)!;
-                  final messenger = ScaffoldMessenger.of(context);
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text(l10n.cartCleared),
@@ -479,8 +480,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 }
               } catch (e) {
                 if (mounted) {
-                  final l10n = AppLocalizations.of(context)!;
-                  final messenger = ScaffoldMessenger.of(context);
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text(l10n.failedToClearCart(e.toString())),
