@@ -14,6 +14,10 @@ on:
       - .github/workflows/backend-ci.yml
   workflow_dispatch:
 
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
     name: Lint, build and test backend
