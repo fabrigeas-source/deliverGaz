@@ -1,0 +1,48 @@
+name: Umbrella CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+concurrency:
+  group: umbrella-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend Lint, Build, Test
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\")'" \
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Backend CI pipeline
+        uses: ./pipelines/backend-ci
+        with:
+          workdir: backend
+          node-version: '18'
+          cache-lock-path: backend/package-lock.json
+          mongodb-uri: mongodb://127.0.0.1:27017/delivergaz_test
+          db-name: delivergaz_test
+
+  frontend:
+    name: Frontend Analyze and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Frontend CI pipeline
+        uses: ./pipelines/frontend-ci
+        with:
+          workdir: frontend
+          flutter-channel: stable
