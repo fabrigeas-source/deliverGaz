@@ -225,7 +225,6 @@ jobs:
         run: |
           if [[ "$IS_MANUAL" == "true" && "$MODE" == "deploy-only" ]]; then
             tag="${{ env.IMAGE_TAG_INPUT }}"
-            if [[ -z "$tag" ]]; then tag="latest"; fi
           else
             tag="latest"
           fi
