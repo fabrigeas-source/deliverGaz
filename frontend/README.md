@@ -118,8 +118,6 @@ flutter doctor --android-licenses
 ## 📄 License
 
 Private application for gas delivery services.
-- ✅ **Firefox**
-- ✅ **Safari** (macOS/iOS)
 
 #### Desktop Deployment
 ```bash
