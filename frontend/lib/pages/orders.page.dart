@@ -137,7 +137,6 @@ class _OrdersPageState extends State<OrdersPage> {
               
               switch (value) {
                 case 'refresh':
-                  final messenger = ScaffoldMessenger.of(context);
                   await _loadOrders();
                   if (mounted) {
                     messenger.showSnackBar(
