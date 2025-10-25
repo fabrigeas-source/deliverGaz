@@ -22,6 +22,7 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   int _selectedPaymentMethod = 0;
   bool _isProcessingPayment = false;
+  String _selectedDeliveryOption = 'standard';
   
   // Form controllers
   final _cardNumberController = TextEditingController();
@@ -198,23 +199,42 @@ class _PaymentPageState extends State<PaymentPage> {
       children: _paymentMethods.map((method) {
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
-          child: RadioListTile<int>(
-            value: method.id,
-            groupValue: _selectedPaymentMethod,
-            onChanged: (value) {
+          child: InkWell(
+            onTap: () {
               setState(() {
-                _selectedPaymentMethod = value!;
+                _selectedPaymentMethod = method.id;
               });
             },
-            title: Row(
-              children: [
-                Icon(method.icon, size: 24),
-                const SizedBox(width: 12),
-                Text(method.name),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    _selectedPaymentMethod == method.id 
+                        ? Icons.radio_button_checked 
+                        : Icons.radio_button_unchecked,
+                    color: _selectedPaymentMethod == method.id 
+                        ? Theme.of(context).primaryColor 
+                        : Colors.grey,
+                  ),
+                  const SizedBox(width: 16),
+                  Icon(method.icon, size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(method.name),
+                        Text(
+                          method.description,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            subtitle: Text(method.description),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
         );
       }).toList(),
@@ -549,24 +569,48 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               const SizedBox(height: 12),
               
-              RadioListTile<String>(
-                title: Text(i10n.standardDelivery),
-                subtitle: Text(i10n.standardDeliveryDesc),
-                value: 'standard',
-                groupValue: 'standard', // Default selection
-                onChanged: (value) {},
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-              ),
-              
-              RadioListTile<String>(
-                title: Text(i10n.expressDelivery),
-                subtitle: Text(i10n.expressDeliveryDesc),
-                value: 'express',
-                groupValue: 'standard',
-                onChanged: (value) {},
-                dense: true,
-                contentPadding: EdgeInsets.zero,
+              Column(
+                children: [
+                  ListTile(
+                    leading: Icon(
+                      _selectedDeliveryOption == 'standard' 
+                          ? Icons.radio_button_checked 
+                          : Icons.radio_button_unchecked,
+                      color: _selectedDeliveryOption == 'standard' 
+                          ? Theme.of(context).primaryColor 
+                          : Colors.grey,
+                    ),
+                    title: Text(i10n.standardDelivery),
+                    subtitle: Text(i10n.standardDeliveryDesc),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    onTap: () {
+                      setState(() {
+                        _selectedDeliveryOption = 'standard';
+                      });
+                    },
+                  ),
+                  
+                  ListTile(
+                    leading: Icon(
+                      _selectedDeliveryOption == 'express' 
+                          ? Icons.radio_button_checked 
+                          : Icons.radio_button_unchecked,
+                      color: _selectedDeliveryOption == 'express' 
+                          ? Theme.of(context).primaryColor 
+                          : Colors.grey,
+                    ),
+                    title: Text(i10n.expressDelivery),
+                    subtitle: Text(i10n.expressDeliveryDesc),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    onTap: () {
+                      setState(() {
+                        _selectedDeliveryOption = 'express';
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
           ),
