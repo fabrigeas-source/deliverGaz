@@ -22,15 +22,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Ensure jq is installed
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
-        shell: bash
-        run: |
-          if ! command -v jq >/dev/null 2>&1; then
-            sudo apt-get update -y
-            sudo apt-get install -y jq
-          fi
-
       - name: Configure Git user (release bump)
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
         shell: bash
