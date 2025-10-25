@@ -31,40 +31,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Backend CI (composite)
+      - name: Backend CI pipeline
         uses: ./pipelines/backend-ci
         with:
-          name: Backend CI
-
-          on:
-            push:
-              branches: [ main ]
-            pull_request:
-              branches: [ main ]
-
-          jobs:
-            backend:
-              name: Build, Lint and Test (backend)
-              runs-on: ubuntu-latest
-              services:
-                mongo:
-                  image: mongo:7.0
-                  ports:
-                    - 27017:27017
-                  options: >-
-                    --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })' || exit 1"
-                    --health-interval=5s
-                    --health-timeout=5s
-                    --health-retries=10
-              steps:
-                - name: Checkout
-                  uses: actions/checkout@v4
-
-                - name: Backend CI pipeline
-                  uses: ./pipelines/backend-ci
-                  with:
-                    workdir: backend
-                    node-version: '18'
-                    cache-lock-path: backend/package-lock.json
-                    mongodb-uri: mongodb://127.0.0.1:27017/delivergaz_test
-                    db-name: delivergaz_test
+          workdir: backend
+          node-version: '18'
+          cache-lock-path: backend/package-lock.json
+          mongodb-uri: mongodb://127.0.0.1:27017/delivergaz_test
+          db-name: delivergaz_test
