@@ -36,8 +36,7 @@ jobs:
       - name: Publish web build to backend/public
         shell: bash
         run: |
-          mkdir -p backend/public
-          find backend/public -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          rm -rf backend/public && mkdir -p backend/public
           cp -a frontend/build/web/. backend/public/
 
       - name: Build and push Backend image
