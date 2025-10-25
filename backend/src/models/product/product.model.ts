@@ -3,7 +3,7 @@
  * Manages product catalog for DeliverGaz application
  */
 
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
 export interface IProduct extends Document {
   name: string;

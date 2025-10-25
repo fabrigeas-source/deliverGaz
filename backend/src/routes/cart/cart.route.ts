@@ -518,7 +518,7 @@ router.delete('/remove/:productId', async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: 'Item removed from cart successfully',
-      data: mockUpdatedCart
+      data: { ...mockUpdatedCart, removedProductId: productId }
     });
   } catch (error) {
     console.error('Error removing item from cart:', error);  

@@ -21,7 +21,7 @@ interface UserDocument {
  * Mock User service - replace with actual User model when available
  */
 const UserService = {
-  async findById(id: string): Promise<UserDocument | null> {
+  async findById(_id: string): Promise<UserDocument | null> {
     // TODO: Replace with actual User.findById when model is implemented
     // For now, return null to indicate user service is not implemented
     console.warn('⚠️  User model not implemented. Authentication will fail.');

@@ -12,7 +12,6 @@ jest.mock('jsonwebtoken');
 describe('Auth Middleware', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
-  let nextFunction: NextFunction;
 
   beforeEach(() => {
     mockRequest = {
@@ -27,7 +26,6 @@ describe('Auth Middleware', () => {
       cookie: jest.fn().mockReturnThis(),
       clearCookie: jest.fn().mockReturnThis()
     };
-    nextFunction = jest.fn();
     jest.clearAllMocks();
   });
 

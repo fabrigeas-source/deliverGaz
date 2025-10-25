@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { body, param, query, validationResult, ValidationChain, Meta } from 'express-validator';
+import { body, param, query, validationResult, ValidationChain } from 'express-validator';
 
 /**
  * Multer file interface
@@ -572,8 +572,8 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
     if (typeof obj === 'object' && obj !== null) {
       const sanitized: any = {};
       for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          sanitized[key] = sanitize(obj[key]);
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          sanitized[key] = sanitize((obj as any)[key]);
         }
       }
       return sanitized;

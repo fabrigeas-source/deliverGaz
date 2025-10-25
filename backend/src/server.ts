@@ -17,8 +17,8 @@ import config, {
   hasValidDatabaseConfig 
 } from './config';
 
-// Import middleware
-import { errorHandler, requestLogger } from './middleware';
+// Import middleware (currently not applied globally)
+// import { errorHandler, requestLogger } from './middleware';
 
 // Import modular routes
 import { 

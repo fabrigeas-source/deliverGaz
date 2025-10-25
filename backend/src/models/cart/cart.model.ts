@@ -70,7 +70,7 @@ export interface ICartModel extends Model<ICart> {
 /**
  * Cart Item Schema
  */
-const CartItemSchema = new Schema<ICartItem>({
+const CartItemSchema: any = new Schema({
   productId: {
     type: Schema.Types.ObjectId,
     ref: 'Product',
@@ -108,7 +108,7 @@ const CartItemSchema = new Schema<ICartItem>({
 /**
  * Cart Schema
  */
-const CartSchema = new Schema<ICart>({
+const CartSchema: any = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -201,7 +201,7 @@ CartSchema.virtual('summary').get(function(this: ICart) {
 /**
  * Pre-save middleware to update totals
  */
-CartSchema.pre('save', function(this: ICart, next) {
+CartSchema.pre('save', function(this: ICart, next: (err?: any) => void) {
   this.calculateTotalsSync();
   next();
 });
@@ -374,12 +374,12 @@ CartSchema.statics.createOrGetCart = async function(
   let cart = await (this as ICartModel).findActiveCart(userId, sessionId);
   
   if (!cart) {
-    cart = new this({
+    cart = new (this as any)({
       userId: userId ? new Types.ObjectId(userId) : undefined,
       sessionId,
       status: 'active'
-    });
-    await cart.save();
+    }) as ICart;
+    await (cart as ICart).save();
   }
 
   return cart;
@@ -401,7 +401,7 @@ CartSchema.statics.mergeGuestCart = async function(
     return null;
   }
 
-  let userCart = await this.findOne({ 
+  const userCart = await this.findOne({ 
     userId: new Types.ObjectId(userId), 
     status: 'active' 
   });

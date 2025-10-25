@@ -9,15 +9,15 @@
     "start:docker:safe": "newgrp docker -c 'docker-compose up -d'",
     "stop:docker": "newgrp docker -c 'docker-compose down'",
     "logs:docker": "newgrp docker -c 'docker-compose logs -f'",
-  "dev": "TS_NODE_TRANSPILE_ONLY=1 nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-  "test": "jest --config jest.config.ts",
-  "test:watch": "jest --config jest.config.ts --watch",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "test": "jest --config jest.config.ts",
+    "test:watch": "jest --config jest.config.ts --watch",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "npm run lint -- --fix"
   },
   "keywords": [
     "typescript",

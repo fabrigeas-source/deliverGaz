@@ -6,15 +6,14 @@ interface ApiError extends Error {
   isOperational?: boolean;
 }
 
-// Async handler wrapper
-export const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
-  return Promise.resolve()
-    .then(() => fn(req, res, next))
-    .catch(next);
+// Async handler wrapper with proper typing
+type AsyncMiddleware = (req: Request, res: Response, next: NextFunction) => unknown | Promise<unknown>;
+export const asyncHandler = (fn: AsyncMiddleware) => (req: Request, res: Response, next: NextFunction) => {
+  return Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 // Global error handler
-export const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: ApiError, req: Request, res: Response, _next: NextFunction) => {
   let error = { ...err };
   error.message = err.message;
 

@@ -111,7 +111,7 @@ export interface IUser extends Document {
 /**
  * Address Schema
  */
-const AddressSchema = new Schema<IAddress>({
+const AddressSchema: any = new Schema({
   street: {
     type: String,
     required: [true, 'Street address is required'],
@@ -171,7 +171,7 @@ const AddressSchema = new Schema<IAddress>({
 /**
  * User Schema
  */
-const UserSchema = new Schema<IUser>({
+const UserSchema: any = new Schema({
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -370,7 +370,7 @@ UserSchema.virtual('isLocked').get(function(this: IUser) {
 /**
  * Pre-save middleware
  */
-UserSchema.pre('save', async function(this: IUser, next) {
+UserSchema.pre('save', async function(this: IUser, next: (err?: any) => void) {
   // Hash password if modified
   if (this.isModified('password')) {
     const salt = await bcrypt.genSalt(12);
@@ -621,5 +621,5 @@ UserSchema.statics.cleanupUnverifiedAccounts = function() {
 /**
  * Export the model
  */
-export const User = model<IUser>('User', UserSchema);
+export const User = model<IUser>('User', UserSchema as any);
 export default User;
