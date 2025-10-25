@@ -2,6 +2,7 @@ name: Backend CI
 
 on:
   pull_request:
+    branches: [ main ]
     paths:
       - backend/**
       - pipelines/backend-ci/**
