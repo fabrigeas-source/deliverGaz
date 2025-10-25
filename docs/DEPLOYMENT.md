@@ -532,9 +532,9 @@ The Release workflow (`.github/workflows/release.yml`) requires the following se
    - Example: `ubuntu` (for Ubuntu), `ec2-user` (for Amazon Linux), or `admin` (for Debian)
 
 3. **EC2_SSH_KEY**
-   - Description: Private SSH key for authentication (PEM format)
+   - Description: Private SSH key for authentication
    - How to get: This is the private key corresponding to the key pair you created when launching the EC2 instance
-   - **Important**: Include the entire key including `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----`
+   - **Important**: Include the entire key including headers and footers (e.g., `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----` for RSA keys, or `-----BEGIN OPENSSH PRIVATE KEY-----` and `-----END OPENSSH PRIVATE KEY-----` for newer OpenSSH format keys)
 
 4. **GHCR_USERNAME**
    - Description: GitHub Container Registry username
