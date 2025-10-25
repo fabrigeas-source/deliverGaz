@@ -283,7 +283,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ steps.port.outputs.port }}
           source: "backend/.env"
-          target: "${{ env.REMOTE_TMP_DIR }}/.env"
+          target: "${{ env.REMOTE_TMP_DIR }}"
 
       - name: Move .env into place on EC2
         uses: appleboy/ssh-action@v1.0.3
