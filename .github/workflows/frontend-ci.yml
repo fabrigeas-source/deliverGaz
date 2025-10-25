@@ -5,12 +5,10 @@ on:
     branches: ["**"]
     paths:
       - frontend/**
-      - pipelines/frontend-ci/**
       - .github/workflows/frontend-ci.yml
   pull_request:
     paths:
       - frontend/**
-      - pipelines/frontend-ci/**
       - .github/workflows/frontend-ci.yml
 
 jobs:
@@ -21,8 +19,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Frontend CI pipeline
-        uses: ./pipelines/frontend-ci
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          workdir: frontend
-          flutter-channel: stable
+          flutter-version: '3.24.5'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          flutter pub get
+
+      - name: Verify Flutter installation
+        run: flutter doctor -v
+
+      - name: Run Flutter analyzer
+        run: |
+          cd frontend
+          flutter analyze --fatal-infos
+
+      - name: Run Flutter tests
+        run: |
+          cd frontend
+          flutter test --coverage
