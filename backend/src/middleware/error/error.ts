@@ -9,7 +9,9 @@ interface ApiError extends Error {
 // Async handler wrapper with proper typing
 type AsyncMiddleware = (req: Request, res: Response, next: NextFunction) => unknown | Promise<unknown>;
 export const asyncHandler = (fn: AsyncMiddleware) => (req: Request, res: Response, next: NextFunction) => {
-  return Promise.resolve(fn(req, res, next)).catch(next);
+  return Promise.resolve()
+    .then(() => fn(req, res, next))
+    .catch(next);
 };
 
 // Global error handler
