@@ -12,6 +12,9 @@
 .swiftpm/
 migrate_working_dir/
 
+# Downloaded binaries
+actionlint
+
 # IntelliJ related
 *.iml
 *.ipr

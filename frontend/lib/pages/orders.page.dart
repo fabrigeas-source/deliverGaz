@@ -137,6 +137,7 @@ class _OrdersPageState extends State<OrdersPage> {
               
               switch (value) {
                 case 'refresh':
+                  final messenger = ScaffoldMessenger.of(context);
                   await _loadOrders();
                   if (mounted) {
                     messenger.showSnackBar(
@@ -348,7 +349,7 @@ class _OrdersPageState extends State<OrdersPage> {
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     child: ExpansionTile(
                       leading: CircleAvatar(
-                        backgroundColor: _getStatusColor(order.status).withValues(alpha: 0.2),
+                        backgroundColor: _getStatusColor(order.status).withOpacity(0.2),
                         child: Icon(
                           _getStatusIcon(order.status),
                           color: _getStatusColor(order.status),
@@ -446,7 +447,7 @@ class _OrdersPageState extends State<OrdersPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+            color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: isSelected 
               ? Border.all(color: color, width: 2)
