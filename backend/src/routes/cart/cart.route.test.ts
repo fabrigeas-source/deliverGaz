@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import cartRouter from './cart.routes';
+import cartRouter from './cart.route';
 
 // Mock Express app setup
 const app = express();

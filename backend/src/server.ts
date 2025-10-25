@@ -239,7 +239,9 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-// Start the server
-startServer();
+// Start the server (skip during tests)
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 export default app;

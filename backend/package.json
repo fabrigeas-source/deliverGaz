@@ -14,8 +14,8 @@
     "build:watch": "tsc --watch",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "test": "jest",
-    "test:watch": "jest --watch",
+  "test": "jest --config jest.config.ts",
+  "test:watch": "jest --config jest.config.ts --watch",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
@@ -70,7 +70,7 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "~5.3.3"
   },
   "engines": {
     "node": ">=18.0.0",

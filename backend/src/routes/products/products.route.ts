@@ -1,6 +1,14 @@
 import { Router, Request, Response } from 'express';
 
-const router = Router();
+const router = Router({ caseSensitive: true, strict: true });
+
+// Explicitly reject unsupported HEAD and OPTIONS methods for base route
+router.use((req: Request, res: Response, next) => {
+  if (req.path === '/' && (req.method === 'HEAD' || req.method === 'OPTIONS')) {
+    return res.sendStatus(404);
+  }
+  next();
+});
 
 /**
  * @swagger
@@ -161,7 +169,7 @@ router.get('/:id', (req: Request, res: Response) => {
     message: 'Get product by ID endpoint - implementation in progress',
     endpoint: 'GET /api/products/:id',
     note: 'This endpoint will return a specific product when fully implemented',
-    params: { id: req.params.id }
+    params: { id: encodeURIComponent(req.params.id) }
   });
 });
 
