@@ -4,6 +4,15 @@ on:
   push:
     branches: [ stage ]
   workflow_dispatch:
+    inputs:
+      deploy_only:
+        description: "Run only the deploy job (skip bump/build)"
+        required: false
+        default: "false"
+      image_tag:
+        description: "Image tag to deploy when deploy_only=true (e.g., latest or a SHA)"
+        required: false
+        default: "latest"
 
 concurrency:
   group: release-${{ github.ref }}
@@ -14,13 +23,112 @@ jobs:
     name: Build and push backend image to GHCR
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git user (release bump)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch tags
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: git fetch --tags --force
+
+      - name: Determine versions
+        id: versions
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "Last tag: '${last_tag}'"
+          if [[ -n "$last_tag" ]]; then
+            base_version=${last_tag#v}
+          else
+            base_version=$(jq -r .version backend/package.json)
+          fi
+          echo "Base version: $base_version"
+          IFS='.' read -r major minor patch <<< "$base_version"
+          major=${major:-1}; minor=${minor:-0}; patch=${patch:-0}
+          new_version="${major}.${minor}.$((patch+1))"
+          echo "New version: $new_version"
+          echo "last_tag=$last_tag" >> "$GITHUB_OUTPUT"
+          echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+
+      - name: Update backend version
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          tmp_pkg=$(mktemp)
+          jq ".version=\"${{ steps.versions.outputs.new_version }}\"" backend/package.json > "$tmp_pkg"
+          mv "$tmp_pkg" backend/package.json
+
+      - name: Update frontend version
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          sed -i -E "s/^version: [0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?/version: ${{ steps.versions.outputs.new_version }}\1/" frontend/pubspec.yaml
+
+      - name: Update CHANGELOG.md
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${{ steps.versions.outputs.last_tag }}" ]]; then
+            range="${{ steps.versions.outputs.last_tag }}..HEAD"
+          else
+            range="--all"
+          fi
+          commits=$(git log --no-merges --pretty=format:"- %s (%h) — %an" $range || true)
+          if [[ -z "$commits" ]]; then commits="- No changes"; fi
+          today=$(date -u +%Y-%m-%d)
+          {
+            echo "# Changelog"
+            echo
+            echo "## v${{ steps.versions.outputs.new_version }} - $today"
+            echo
+            echo "$commits"
+            echo
+            if [[ -f CHANGELOG.md ]]; then
+              awk 'NR==1 && $0 ~ /^# Changelog/ {next} {print}' CHANGELOG.md || true
+            fi
+          } > CHANGELOG.md.new
+          mv CHANGELOG.md.new CHANGELOG.md
+
+      - name: Commit version and changelog
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          git add backend/package.json frontend/pubspec.yaml CHANGELOG.md
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore(release): v${{ steps.versions.outputs.new_version }} [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Create and push tag
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only != 'true' }}
+        shell: bash
+        run: |
+          if git tag -l "v${{ steps.versions.outputs.new_version }}" | grep -q .; then
+            echo "Tag v${{ steps.versions.outputs.new_version }} already exists, skipping creation and push."
+          else
+            git tag -a "v${{ steps.versions.outputs.new_version }}" -m "Release v${{ steps.versions.outputs.new_version }}"
+            git push origin "v${{ steps.versions.outputs.new_version }}"
+          fi
 
       - name: Show workflow context
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         shell: bash
         run: |
           echo "repo: ${{ github.repository }}"
@@ -32,22 +140,27 @@ jobs:
           if [[ -n "${{ secrets.API_BASE_URL_PROD }}" ]]; then echo "API_BASE_URL_PROD: set"; else echo "API_BASE_URL_PROD: not set"; fi
 
       - name: Setup Flutter (stable)
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
       - name: Flutter version
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: flutter --version
 
       - name: Frontend - flutter pub get
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         working-directory: frontend
         run: flutter pub get
 
       - name: Frontend - build web (release)
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         working-directory: frontend
         run: flutter build web --release --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL_PROD }}
 
       - name: Publish web build to backend/public
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         shell: bash
         run: |
           rm -rf backend/public && mkdir -p backend/public
@@ -56,6 +169,7 @@ jobs:
           echo "backend/public top-level contents:" && ls -la backend/public | sed -n '1,50p'
 
       - name: Build and push Backend image
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: ./pipelines/docker-build-push
         with:
           context: ./backend
@@ -83,7 +197,7 @@ jobs:
     name: Deploy to EC2
     runs-on: ubuntu-latest
     needs: build-and-push-backend
-    if: ${{ github.ref == 'refs/heads/stage' }}
+    if: ${{ (github.ref == 'refs/heads/stage' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' && github.event.inputs.deploy_only == 'true') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,11 +212,23 @@ jobs:
             echo "port=22" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Resolve image to deploy
+        id: image
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
+            tag="${{ github.event.inputs.image_tag }}"
+          else
+            tag="latest"
+          fi
+          echo "image=ghcr.io/${{ github.repository_owner }}/delivergaz-backend:${tag}" >> "$GITHUB_OUTPUT"
+
       - name: Show deployment parameters
         shell: bash
         run: |
           echo "ref: ${{ github.ref }} (name: ${{ github.ref_name }})"
-          echo "image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest"
+          echo "manual deploy_only: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_only }}"
+          echo "image: ${{ steps.image.outputs.image }}"
           echo "container port mapping: 3000:3000"
           echo "ssh port (effective): ${{ steps.port.outputs.port }}"
           if [[ -n "${{ secrets.EC2_HOST }}" ]]; then echo "EC2_HOST: set"; else echo "EC2_HOST: not set"; fi
@@ -111,7 +237,30 @@ jobs:
           if [[ -n "${{ secrets.EC2_PORT }}" ]]; then echo "EC2_PORT: set"; else echo "EC2_PORT: not set (default 22)"; fi
           if [[ -n "${{ secrets.GHCR_USERNAME }}" ]]; then echo "GHCR_USERNAME: set"; else echo "GHCR_USERNAME: not set"; fi
           if [[ -n "${{ secrets.GHCR_PAT }}" ]]; then echo "GHCR_PAT: set"; else echo "GHCR_PAT: not set"; fi
+          if [[ -n "${{ secrets.MONGO_URI }}" ]]; then echo "MONGO_URI: set"; else echo "MONGO_URI: not set"; fi
+          if [[ -n "${{ secrets.JWT_SECRET }}" ]]; then echo "JWT_SECRET: set"; else echo "JWT_SECRET: not set"; fi
           echo "remote env-file: /opt/delivergaz/backend/.env"
+
+      - name: Create remote .env on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ steps.port.outputs.port }}
+          script: |
+            set -euo pipefail
+            sudo mkdir -p /opt/delivergaz/backend
+            sudo chown -R $USER:$USER /opt/delivergaz
+            cat > /tmp/.env <<'EOF'
+            NODE_ENV=production
+            PORT=3000
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EOF
+            sudo mv /tmp/.env /opt/delivergaz/backend/.env
+            sudo chown root:root /opt/delivergaz/backend/.env
+            sudo chmod 600 /opt/delivergaz/backend/.env
 
       - name: Deploy to EC2
         uses: ./pipelines/ec2-ssh-deploy
