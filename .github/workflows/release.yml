@@ -76,7 +76,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
         shell: bash
         run: |
-          sed -i -E "s/^version: .*/version: ${{ steps.versions.outputs.new_version }}/" frontend/pubspec.yaml
+          sed -i -E "s/^version: [0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?/version: ${{ steps.versions.outputs.new_version }}\1/" frontend/pubspec.yaml
 
       - name: Update CHANGELOG.md
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/stage' }}
