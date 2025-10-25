@@ -20,9 +20,11 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  static const String _defaultDeliveryOption = 'standard';
+  
   int _selectedPaymentMethod = 0;
   bool _isProcessingPayment = false;
-  String _selectedDeliveryOption = 'standard';
+  String _selectedDeliveryOption = _defaultDeliveryOption;
   
   // Form controllers
   final _cardNumberController = TextEditingController();
@@ -557,7 +559,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     groupValue: _selectedDeliveryOption,
                     onChanged: (value) {
                       setState(() {
-                        _selectedDeliveryOption = value ?? 'standard';
+                        _selectedDeliveryOption = value ?? _defaultDeliveryOption;
                       });
                     },
                     title: Text(i10n.standardDelivery),
@@ -571,7 +573,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     groupValue: _selectedDeliveryOption,
                     onChanged: (value) {
                       setState(() {
-                        _selectedDeliveryOption = value ?? 'standard';
+                        _selectedDeliveryOption = value ?? _defaultDeliveryOption;
                       });
                     },
                     title: Text(i10n.expressDelivery),
