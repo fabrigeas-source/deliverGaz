@@ -635,14 +635,16 @@ If you encounter `ssh: handshake failed` or `ssh: unable to authenticate` errors
 # Ensure your EC2_SSH_KEY secret is properly formatted
 # The SSH private key should include the full PEM format with line breaks:
 
-# ✓ Correct format:
+# ✓ Correct format (example with placeholder content):
 -----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
-[key content with proper line breaks]
+<YOUR_KEY_CONTENT_LINE_1>
+<YOUR_KEY_CONTENT_LINE_2>
+<YOUR_KEY_CONTENT_LINE_3>
+... (multiple lines with line breaks preserved)
 -----END OPENSSH PRIVATE KEY-----
 
 # ✗ Incorrect format (single line without proper line breaks):
------BEGIN OPENSSH PRIVATE KEY----- b3BlbnNzaC1rZXktdjEAAA...
+-----BEGIN OPENSSH PRIVATE KEY----- <YOUR_KEY_CONTENT_ALL_ON_ONE_LINE> -----END OPENSSH PRIVATE KEY-----
 
 # When adding the key to GitHub Secrets:
 # 1. Copy the entire key file content (including headers and footers)
