@@ -469,7 +469,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 
                 if (mounted) {
                   final l10n = AppLocalizations.of(context)!;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  final messenger = ScaffoldMessenger.of(context);
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(l10n.cartCleared),
                       backgroundColor: Colors.green,
@@ -479,7 +480,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               } catch (e) {
                 if (mounted) {
                   final l10n = AppLocalizations.of(context)!;
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  final messenger = ScaffoldMessenger.of(context);
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(l10n.failedToClearCart(e.toString())),
                       backgroundColor: Colors.red,
