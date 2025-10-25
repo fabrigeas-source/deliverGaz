@@ -67,18 +67,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Backend image
-        uses: ./pipelines/docker-build-push
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
-            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:${{ github.sha }}
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
@@ -88,7 +76,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check deployment secrets
+        id: check-secrets
+        shell: bash
+        run: |
+          MISSING_SECRETS=()
+          
+          if [[ -z "${{ secrets.EC2_HOST }}" ]]; then
+            MISSING_SECRETS+=("EC2_HOST")
+          fi
+          
+          if [[ -z "${{ secrets.EC2_USER }}" ]]; then
+            MISSING_SECRETS+=("EC2_USER")
+          fi
+          
+          if [[ -z "${{ secrets.EC2_SSH_KEY }}" ]]; then
+            MISSING_SECRETS+=("EC2_SSH_KEY")
+          fi
+          
+          if [[ -z "${{ secrets.GHCR_USERNAME }}" ]]; then
+            MISSING_SECRETS+=("GHCR_USERNAME")
+          fi
+          
+          if [[ -z "${{ secrets.GHCR_PAT }}" ]]; then
+            MISSING_SECRETS+=("GHCR_PAT")
+          fi
+          
+          if [ ${#MISSING_SECRETS[@]} -eq 0 ]; then
+            echo "all-secrets-available=true" >> "$GITHUB_OUTPUT"
+            echo "✅ All required deployment secrets are configured"
+          else
+            echo "all-secrets-available=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Deployment skipped: Missing required secrets"
+            echo "Please configure the following secrets in repository settings:"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "  - $secret"
+            done
+            echo ""
+            echo "See docs/DEPLOYMENT.md for more information on EC2 deployment setup"
+          fi
+
       - name: Resolve SSH port
+        if: steps.check-secrets.outputs.all-secrets-available == 'true'
         id: port
         shell: bash
         run: |
@@ -99,6 +128,7 @@ jobs:
           fi
 
       - name: Show deployment parameters
+        if: steps.check-secrets.outputs.all-secrets-available == 'true'
         shell: bash
         run: |
           echo "ref: ${{ github.ref }} (name: ${{ github.ref_name }})"
@@ -114,6 +144,7 @@ jobs:
           echo "remote env-file: /opt/delivergaz/backend/.env"
 
       - name: Deploy to EC2
+        if: steps.check-secrets.outputs.all-secrets-available == 'true'
         uses: ./pipelines/ec2-ssh-deploy
         with:
           host: ${{ secrets.EC2_HOST }}

@@ -517,6 +517,59 @@ jobs:
           projectId: delivergaz-app
 ```
 
+### Required GitHub Secrets for EC2 Deployment
+
+The Release workflow (`.github/workflows/release.yml`) requires the following secrets to be configured in your GitHub repository settings to deploy to EC2:
+
+#### Required Secrets
+
+1. **EC2_HOST**
+   - Description: The public IP address or hostname of your EC2 instance
+   - Example: `ec2-12-34-56-78.compute-1.amazonaws.com` or `12.34.56.78`
+
+2. **EC2_USER**
+   - Description: SSH username for connecting to the EC2 instance
+   - Example: `ubuntu` (for Ubuntu), `ec2-user` (for Amazon Linux), or `admin` (for Debian)
+
+3. **EC2_SSH_KEY**
+   - Description: Private SSH key for authentication (PEM format)
+   - How to get: This is the private key corresponding to the key pair you created when launching the EC2 instance
+   - **Important**: Include the entire key including `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----`
+
+4. **GHCR_USERNAME**
+   - Description: GitHub Container Registry username
+   - Example: Your GitHub username or organization name
+
+5. **GHCR_PAT**
+   - Description: GitHub Personal Access Token with `read:packages` scope
+   - How to create: GitHub Settings → Developer settings → Personal access tokens → Generate new token (classic)
+   - Required scope: `read:packages`
+
+#### Optional Secrets
+
+6. **EC2_PORT**
+   - Description: SSH port (defaults to 22 if not specified)
+   - Example: `22` or custom port if you've changed the SSH port
+
+7. **API_BASE_URL_PROD**
+   - Description: Production API base URL for the Flutter frontend build
+   - Example: `https://api.yourdomain.com/api/v1`
+
+#### How to Configure Secrets
+
+1. Go to your GitHub repository
+2. Navigate to **Settings** → **Secrets and variables** → **Actions**
+3. Click **New repository secret**
+4. Add each secret with its name and value
+5. Click **Add secret**
+
+#### Workflow Behavior
+
+- If any required secret is missing, the deployment step will be **skipped** (not failed)
+- The workflow will display which secrets are missing in the job logs
+- The backend Docker image will still be built and pushed to GitHub Container Registry
+- Once all secrets are configured, deployments will run automatically on pushes to the `stage` branch
+
 ## Monitoring and Logging
 
 ### Backend Monitoring
