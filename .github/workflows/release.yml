@@ -20,32 +20,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build and push Backend image
-        uses: ./pipelines/docker-build-push
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
-            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:${{ github.sha }}
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-  build-and-push-frontend:
-    name: Build and push frontend image to GHCR
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Show workflow context
+        shell: bash
+        run: |
+          echo "repo: ${{ github.repository }}"
+          echo "actor: ${{ github.actor }}"
+          echo "ref: ${{ github.ref }} (name: ${{ github.ref_name }})"
+          echo "sha: ${{ github.sha }}"
+          echo "event: ${{ github.event_name }}"
+          echo "intended image tags: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest, :${{ github.sha }}"
+          if [[ -n "${{ secrets.API_BASE_URL_PROD }}" ]]; then echo "API_BASE_URL_PROD: set"; else echo "API_BASE_URL_PROD: not set"; fi
 
       - name: Setup Flutter (stable)
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+
+      - name: Flutter version
+        run: flutter --version
 
       - name: Frontend - flutter pub get
         working-directory: frontend
@@ -60,15 +52,54 @@ jobs:
         run: |
           rm -rf backend/public && mkdir -p backend/public
           cp -a frontend/build/web/. backend/public/
+          echo "backend/public file count:" && find backend/public -type f | wc -l
+          echo "backend/public top-level contents:" && ls -la backend/public | sed -n '1,50p'
+
+      - name: Build and push Backend image
+        uses: ./pipelines/docker-build-push
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
+            ghcr.io/${{ github.repository_owner }}/delivergaz-backend:${{ github.sha }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: build-and-push-backend
     if: ${{ github.ref == 'refs/heads/stage' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Resolve SSH port
+        id: port
+        shell: bash
+        run: |
+          if [[ -n "${{ secrets.EC2_PORT }}" ]]; then
+            echo "port=${{ secrets.EC2_PORT }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "port=22" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Show deployment parameters
+        shell: bash
+        run: |
+          echo "ref: ${{ github.ref }} (name: ${{ github.ref_name }})"
+          echo "image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest"
+          echo "container port mapping: 3000:3000"
+          echo "ssh port (effective): ${{ steps.port.outputs.port }}"
+          if [[ -n "${{ secrets.EC2_HOST }}" ]]; then echo "EC2_HOST: set"; else echo "EC2_HOST: not set"; fi
+          if [[ -n "${{ secrets.EC2_USER }}" ]]; then echo "EC2_USER: set"; else echo "EC2_USER: not set"; fi
+          if [[ -n "${{ secrets.EC2_SSH_KEY }}" ]]; then echo "EC2_SSH_KEY: set"; else echo "EC2_SSH_KEY: not set"; fi
+          if [[ -n "${{ secrets.EC2_PORT }}" ]]; then echo "EC2_PORT: set"; else echo "EC2_PORT: not set (default 22)"; fi
+          if [[ -n "${{ secrets.GHCR_USERNAME }}" ]]; then echo "GHCR_USERNAME: set"; else echo "GHCR_USERNAME: not set"; fi
+          if [[ -n "${{ secrets.GHCR_PAT }}" ]]; then echo "GHCR_PAT: set"; else echo "GHCR_PAT: not set"; fi
+          echo "remote env-file: /opt/delivergaz/backend/.env"
 
       - name: Deploy to EC2
         uses: ./pipelines/ec2-ssh-deploy
@@ -76,7 +107,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT != '' && secrets.EC2_PORT || '22' }}
+          port: ${{ steps.port.outputs.port }}
           image: ghcr.io/${{ github.repository_owner }}/delivergaz-backend:latest
           ghcr-username: ${{ secrets.GHCR_USERNAME }}
           ghcr-pat: ${{ secrets.GHCR_PAT }}
