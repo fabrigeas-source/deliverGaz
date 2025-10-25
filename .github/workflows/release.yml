@@ -206,7 +206,6 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.deploy_only }}" == "true" ]]; then
             tag="${{ github.event.inputs.image_tag }}"
-            if [[ -z "$tag" ]]; then tag="latest"; fi
           else
             tag="latest"
           fi
