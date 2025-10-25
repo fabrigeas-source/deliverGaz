@@ -6,15 +6,16 @@ interface ApiError extends Error {
   isOperational?: boolean;
 }
 
-// Async handler wrapper
-export const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+// Async handler wrapper with proper typing
+type AsyncMiddleware = (req: Request, res: Response, next: NextFunction) => unknown | Promise<unknown>;
+export const asyncHandler = (fn: AsyncMiddleware) => (req: Request, res: Response, next: NextFunction) => {
   return Promise.resolve()
     .then(() => fn(req, res, next))
     .catch(next);
 };
 
 // Global error handler
-export const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: ApiError, req: Request, res: Response, _next: NextFunction) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -28,14 +29,22 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
   }
 
   // Mongoose duplicate key
-  if (err.name === 'MongoError' && (err as any).code === 11000) {
+  if (
+    err.name === 'MongoError' &&
+    typeof (err as { code?: unknown }).code === 'number' &&
+    (err as { code?: number }).code === 11000
+  ) {
     const message = 'Duplicate field value entered';
     error = { name: 'MongoError', message, statusCode: 400 } as ApiError;
   }
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values((err as any).errors).map((val: any) => val.message).join(', ');
+    type FieldErr = { message: string };
+    const errs = (err as { errors?: Record<string, FieldErr> }).errors;
+    const message = errs
+      ? Object.values(errs).map((val) => val.message).join(', ')
+      : 'Validation error';
     error = { name: 'ValidationError', message, statusCode: 400 } as ApiError;
   }
 

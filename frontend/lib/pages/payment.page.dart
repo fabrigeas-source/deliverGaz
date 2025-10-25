@@ -1,777 +1,715 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:deliver_gaz/models.dart';
 import 'package:deliver_gaz/services.dart';
 import 'package:deliver_gaz/l10n/app_localizations.dart';
-import 'order_confirmation.page.dart';
 
-class PaymentPage extends StatefulWidget {
-  final List<CartItem> cartItems;
-  final double totalAmount;
-
-  const PaymentPage({
-    super.key,
-    required this.cartItems,
-    required this.totalAmount,
-  });
+class OrdersPage extends StatefulWidget {
+  const OrdersPage({super.key});
 
   @override
-  State<PaymentPage> createState() => _PaymentPageState();
+  State<OrdersPage> createState() => _OrdersPageState();
 }
 
-class _PaymentPageState extends State<PaymentPage> {
-  static const String _defaultDeliveryOption = 'standard';
+class _OrdersPageState extends State<OrdersPage> {
+  static const String _filterAll = 'All';
+  static const String _sortDate = 'Date';
+  static const String _sortStatus = 'Status';
+  static const String _sortTotal = 'Total';
+  static const String _sortID = 'ID';
   
-  int _selectedPaymentMethod = 0;
-  bool _isProcessingPayment = false;
-  String _selectedDeliveryOption = _defaultDeliveryOption;
+  String _selectedFilter = _filterAll;
+  String _sortBy = _sortDate;
+  bool _sortAscending = false;
   
-  // Form controllers
-  final _cardNumberController = TextEditingController();
-  final _expiryController = TextEditingController();
-  final _cvvController = TextEditingController();
-  final _cardHolderController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  
-  // Cash on Delivery fields
-  final _deliveryAddressController = TextEditingController();
-  final _deliveryPhoneController = TextEditingController();
-  final _deliveryNotesController = TextEditingController();
-  
-  // Form keys
-  final _formKey = GlobalKey<FormState>();
-  
-  // Payment methods - initialized in build method to access context for localization
-  late List<PaymentMethod> _paymentMethods;
+  final OrdersApiClient _apiClient = OrdersApiClient();
+  List<Order> _allOrders = [];
+  bool _isLoading = true;
+  String? _error;
 
   @override
-  void dispose() {
-    _cardNumberController.dispose();
-    _expiryController.dispose();
-    _cvvController.dispose();
-    _cardHolderController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _deliveryAddressController.dispose();
-    _deliveryPhoneController.dispose();
-    _deliveryNotesController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadOrders();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final i10n = AppLocalizations.of(context)!;
-    
-    // Initialize payment methods with localized text
-    _paymentMethods = [
-      PaymentMethod(
-        id: 0,
-        name: i10n.creditDebitCard,
-        icon: Icons.credit_card,
-        description: i10n.creditDebitCardDesc,
-      ),
-      PaymentMethod(
-        id: 1,
-        name: i10n.mobileMoney,
-        icon: Icons.phone_android,
-        description: i10n.mobileMoneyDesc,
-      ),
-      PaymentMethod(
-        id: 2,
-        name: i10n.bankTransfer,
-        icon: Icons.account_balance,
-        description: i10n.bankTransferDesc,
-      ),
-      PaymentMethod(
-        id: 3,
-        name: i10n.payOnDelivery,
-        icon: Icons.delivery_dining,
-        description: i10n.payOnDeliveryDesc,
-      ),
-    ];
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(i10n.payment),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // Order Summary
-          _buildOrderSummary(),
-          
-          // Payment Form
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle(i10n.paymentMethod),
-                    const SizedBox(height: 16),
-                    _buildPaymentMethods(),
-                    const SizedBox(height: 24),
-                    
-                    if (_selectedPaymentMethod == 0) ...[
-                      _buildSectionTitle(i10n.cardDetails),
-                      const SizedBox(height: 16),
-                      _buildCardForm(i10n),
-                    ] else if (_selectedPaymentMethod == 1) ...[
-                      _buildSectionTitle(i10n.mobileMoneyDetails),
-                      const SizedBox(height: 16),
-                      _buildMobileMoneyForm(i10n),
-                    ] else if (_selectedPaymentMethod == 2) ...[
-                      _buildSectionTitle(i10n.bankTransferDetails),
-                      const SizedBox(height: 16),
-                      _buildBankTransferForm(i10n),
-                    ] else if (_selectedPaymentMethod == 3) ...[
-                      _buildSectionTitle(i10n.deliveryInformation),
-                      const SizedBox(height: 16),
-                      _buildCashOnDeliveryForm(i10n),
-                    ],
-                    
-                    const SizedBox(height: 32),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          
-          // Pay Now Button
-          _buildPaymentButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrderSummary() {
-    final i10n = AppLocalizations.of(context)!;
-    
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            i10n.orderSummary,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            i10n.itemCount(widget.cartItems.length),
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            i10n.totalAmount(widget.totalAmount.toStringAsFixed(2)),
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethods() {
-    return Column(
-      children: _paymentMethods.map((method) {
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: RadioListTile<int>(
-            value: method.id,
-            groupValue: _selectedPaymentMethod,
-            onChanged: (value) {
-              setState(() {
-                _selectedPaymentMethod = value ?? 0;
-              });
-            },
-            title: Row(
-              children: [
-                Icon(method.icon, size: 24),
-                const SizedBox(width: 12),
-                Text(method.name),
-              ],
-            ),
-            subtitle: Text(method.description),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildCardForm(AppLocalizations i10n) {
-    return Column(
-      children: [
-        TextFormField(
-          controller: _cardNumberController,
-          decoration: InputDecoration(
-            labelText: i10n.cardNumber,
-            hintText: '1234 5678 9012 3456',
-            prefixIcon: const Icon(Icons.credit_card),
-            border: const OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            _CardNumberFormatter(),
-          ],
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return i10n.pleaseEnterCardNumber;
-            }
-            if (value.replaceAll(' ', '').length < 16) {
-              return i10n.pleaseEnterValidCardNumber;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        
-        TextFormField(
-          controller: _cardHolderController,
-          decoration: InputDecoration(
-            labelText: i10n.cardholderName,
-            hintText: i10n.cardholderNameHint,
-            prefixIcon: const Icon(Icons.person),
-            border: const OutlineInputBorder(),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return i10n.pleaseEnterCardholderName;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _expiryController,
-                decoration: InputDecoration(
-                  labelText: i10n.expiryDate,
-                  hintText: 'MM/YY',
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  _ExpiryDateFormatter(),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return i10n.required;
-                  }
-                  if (value.length < 5) {
-                    return i10n.invalidFormat;
-                  }
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: TextFormField(
-                controller: _cvvController,
-                decoration: InputDecoration(
-                  labelText: i10n.cvv,
-                  hintText: '123',
-                  prefixIcon: const Icon(Icons.security),
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return i10n.required;
-                  }
-                  if (value.length < 3) {
-                    return i10n.invalidCvv;
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMobileMoneyForm(AppLocalizations i10n) {
-    return Column(
-      children: [
-        TextFormField(
-          controller: _phoneController,
-          decoration: InputDecoration(
-            labelText: i10n.phoneNumber,
-            hintText: i10n.contactPhoneHint,
-            prefixIcon: const Icon(Icons.phone),
-            border: const OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.phone,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return i10n.pleaseEnterPhoneNumber;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            labelText: i10n.mobileMoneyProvider,
-            prefixIcon: const Icon(Icons.account_balance_wallet),
-            border: const OutlineInputBorder(),
-          ),
-          items: [
-            DropdownMenuItem(value: 'mtn', child: Text(i10n.mtnMobileMoney)),
-            DropdownMenuItem(value: 'orange', child: Text(i10n.orangeMoney)),
-            DropdownMenuItem(value: 'express_union', child: Text(i10n.expressUnionMobile)),
-          ],
-          validator: (value) {
-            if (value == null) {
-              return i10n.pleaseSelectProvider;
-            }
-            return null;
-          },
-          onChanged: (value) {},
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBankTransferForm(AppLocalizations i10n) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                i10n.bankTransferDetailsTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(i10n.accountName),
-              Text(i10n.accountNumber),
-              Text(i10n.bankName),
-              Text(i10n.swiftCode),
-              const SizedBox(height: 8),
-              Text(
-                i10n.referenceNumber(DateTime.now().millisecondsSinceEpoch.toString()),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        TextFormField(
-          controller: _emailController,
-          decoration: InputDecoration(
-            labelText: i10n.emailForConfirmation,
-            hintText: i10n.emailHint,
-            prefixIcon: const Icon(Icons.email),
-            border: const OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.emailAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return i10n.pleaseEnterEmail;
-            }
-            if (!value.contains('@')) {
-              return i10n.pleaseEnterValidEmail;
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCashOnDeliveryForm(AppLocalizations i10n) {
-    return Column(
-      children: [
-        // Information Box
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.orange.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.info, color: Colors.orange.shade600),
-                  const SizedBox(width: 8),
-                  Text(
-                    i10n.cashOnDeliveryInfo,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(i10n.paymentCollectedOnDelivery),
-              Text(i10n.haveExactChange),
-              Text(i10n.deliveryFee),
-              Text(i10n.estimatedDelivery),
-              Text(i10n.orderConfirmationSms),
-            ],
-          ),
-        ),
-        
-        const SizedBox(height: 20),
-        
-        // Delivery Details Form
-        Text(
-          i10n.deliveryDetails,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // Delivery Address
-        TextFormField(
-          controller: _deliveryAddressController,
-          decoration: InputDecoration(
-            labelText: i10n.deliveryAddress,
-            hintText: i10n.deliveryAddressHint,
-            prefixIcon: const Icon(Icons.location_on),
-            border: const OutlineInputBorder(),
-          ),
-          maxLines: 3,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return i10n.pleaseEnterDeliveryAddress;
-            }
-            if (value.length < 10) {
-              return i10n.pleaseEnterCompleteAddress;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        
-        // Delivery Phone
-        TextFormField(
-          controller: _deliveryPhoneController,
-          decoration: InputDecoration(
-            labelText: i10n.contactPhoneNumber,
-            hintText: i10n.contactPhoneHint,
-            prefixIcon: const Icon(Icons.phone),
-            border: const OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.phone,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return i10n.pleaseEnterContactPhone;
-            }
-            if (value.length < 9) {
-              return i10n.pleaseEnterValidPhone;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        
-        // Delivery Notes (Optional)
-        TextFormField(
-          controller: _deliveryNotesController,
-          decoration: InputDecoration(
-            labelText: i10n.deliveryInstructions,
-            hintText: i10n.deliveryInstructionsHint,
-            prefixIcon: const Icon(Icons.note),
-            border: const OutlineInputBorder(),
-          ),
-          maxLines: 2,
-        ),
-        
-        const SizedBox(height: 20),
-        
-        // Delivery Time Options
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.green.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.green.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.schedule, color: Colors.green.shade600),
-                  const SizedBox(width: 8),
-                  Text(
-                    i10n.deliveryOptions,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              
-              Column(
-                children: [
-                  RadioListTile<String>(
-                    value: 'standard',
-                    groupValue: _selectedDeliveryOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDeliveryOption = value ?? _defaultDeliveryOption;
-                      });
-                    },
-                    title: Text(i10n.standardDelivery),
-                    subtitle: Text(i10n.standardDeliveryDesc),
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  
-                  RadioListTile<String>(
-                    value: 'express',
-                    groupValue: _selectedDeliveryOption,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDeliveryOption = value ?? _defaultDeliveryOption;
-                      });
-                    },
-                    title: Text(i10n.expressDelivery),
-                    subtitle: Text(i10n.expressDeliveryDesc),
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPaymentButton() {
-    final i10n = AppLocalizations.of(context)!;
-    
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _isProcessingPayment ? null : _processPayment,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: _isProcessingPayment
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(_selectedPaymentMethod == 3 ? i10n.placingOrder : i10n.processingPayment),
-                    ],
-                  )
-                : Text(
-                    _selectedPaymentMethod == 3 
-                        ? i10n.payOnDeliveryButton(widget.totalAmount.toStringAsFixed(2))
-                        : i10n.payNowButton(widget.totalAmount.toStringAsFixed(2)),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _processPayment() async {
-    final i10n = AppLocalizations.of(context)!;
-    
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() {
-      _isProcessingPayment = true;
-    });
-
+  Future<void> _loadOrders() async {
     try {
-      // Simulate payment processing
-      await Future.delayed(const Duration(seconds: 2));
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
 
-      // Clear cart after successful payment
-      final cartApiClient = CartApiClient();
-      await cartApiClient.clearCart();
+      final orders = await _apiClient.fetchOrders(
+        status: _selectedFilter == _filterAll ? null : _selectedFilter,
+        sortBy: _sortBy,
+        ascending: _sortAscending,
+      );
+
+      setState(() {
+        _allOrders = orders;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _createTestOrder() async {
+    final i10n = AppLocalizations.of(context)!;
+    try {
+      final newOrder = await _apiClient.createOrder(
+        total: 125.99,
+        items: [i10n.gasCylinder13kg, i10n.gasRegulator, i10n.gasHose2m],
+      );
+
+      await _loadOrders(); // Refresh the list
 
       if (mounted) {
-        // Generate order ID
-        final orderId = 'DG${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-        
-        // Get selected payment method name
-        final selectedMethod = _paymentMethods.firstWhere((method) => method.id == _selectedPaymentMethod);
-        
-        // Navigate to order confirmation page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OrderConfirmationPage(
-              orderId: orderId,
-              orderItems: widget.cartItems,
-              totalAmount: widget.totalAmount,
-              paymentMethod: selectedMethod.name,
-              orderDate: DateTime.now(),
-            ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(i10n.testOrderCreated(newOrder.id)),
+            backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isProcessingPayment = false;
-        });
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                const SizedBox(width: 8),
-                Expanded(child: Text(_selectedPaymentMethod == 3 
-                    ? i10n.orderPlacementFailed(e.toString())
-                    : i10n.paymentFailed(e.toString()))),
-              ],
-            ),
+            content: Text(i10n.failedToCreateOrder(e.toString())),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
           ),
         );
       }
     }
   }
-}
 
-class PaymentMethod {
-  final int id;
-  final String name;
-  final IconData icon;
-  final String description;
-
-  PaymentMethod({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.description,
-  });
-}
-
-class _CardNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text.replaceAll(' ', '');
-    final buffer = StringBuffer();
+  List<Order> get _filteredAndSortedOrders {
+    List<Order> filtered = _allOrders;
     
-    for (int i = 0; i < text.length; i++) {
-      if (i > 0 && i % 4 == 0) {
-        buffer.write(' ');
-      }
-      buffer.write(text[i]);
+    // Apply filter
+    if (_selectedFilter != _filterAll) {
+      filtered = filtered.where((order) => order.status == _selectedFilter).toList();
     }
     
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
+    // Apply sorting
+    filtered.sort((a, b) {
+      int comparison;
+      switch (_sortBy) {
+        case _sortDate:
+          comparison = a.date.compareTo(b.date);
+          break;
+        case _sortStatus:
+          comparison = a.status.compareTo(b.status);
+          break;
+        case _sortTotal:
+          comparison = a.total.compareTo(b.total);
+          break;
+        case _sortID:
+          comparison = a.id.compareTo(b.id);
+          break;
+        default:
+          comparison = a.date.compareTo(b.date);
+      }
+      return _sortAscending ? comparison : -comparison;
+    });
+    
+    return filtered;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredOrders = _filteredAndSortedOrders;
+    final i10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(i10n.myOrders),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              // Store context-dependent values before async operation
+              final messenger = ScaffoldMessenger.of(context);
+              final refreshMessage = i10n.refreshOrders;
+              
+              switch (value) {
+                case 'refresh':
+                  await _loadOrders();
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      SnackBar(content: Text(refreshMessage)),
+                    );
+                  }
+                  break;
+                case 'create_test':
+                  await _createTestOrder();
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'refresh',
+                child: Row(
+                  children: [
+                    const Icon(Icons.refresh),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        i10n.refreshOrders,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'create_test',
+                child: Row(
+                  children: [
+                    const Icon(Icons.add),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        i10n.createTestOrder,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Filter Tabs
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildFilterTab(i10n.all, _allOrders.length, Colors.blue),
+                    _buildFilterTab(i10n.delivered, _allOrders.where((o) => o.status == 'Delivered').length, Colors.green),
+                    _buildFilterTab(i10n.inTransit, _allOrders.where((o) => o.status == 'In Transit').length, Colors.orange),
+                    _buildFilterTab(i10n.cancelled, _allOrders.where((o) => o.status == 'Cancelled').length, Colors.red),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            
+            // Sort Options
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  i10n.showingOrders(filteredOrders.length),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                Row(
+                  children: [
+                    DropdownButton<String>(
+                      value: _sortBy,
+                      underline: Container(),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: _sortDate,
+                          child: Text(i10n.sortByDate),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: _sortStatus,
+                          child: Text(i10n.sortByStatus),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: _sortTotal,
+                          child: Text(i10n.sortByTotal),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: _sortID,
+                          child: Text(i10n.sortByID),
+                        ),
+                      ],
+                      onChanged: _isLoading ? null : (String? newValue) async {
+                        setState(() {
+                          _sortBy = newValue!;
+                        });
+                        await _loadOrders();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 20,
+                      ),
+                      onPressed: _isLoading ? null : () async {
+                        setState(() {
+                          _sortAscending = !_sortAscending;
+                        });
+                        await _loadOrders();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Orders List
+            Expanded(
+              child: _isLoading
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Loading orders...'),
+                      ],
+                    ),
+                  )
+                : _error != null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Error loading orders',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Colors.red.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _error!,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey.shade600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _loadOrders,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : filteredOrders.isEmpty 
+                    ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No orders found',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _selectedFilter == 'All' 
+                            ? 'You haven\'t placed any orders yet'
+                            : 'No ${_selectedFilter.toLowerCase()} orders found',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredOrders.length,
+                    itemBuilder: (context, index) {
+                      final order = filteredOrders[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ExpansionTile(
+                      leading: CircleAvatar(
+                        backgroundColor: _getStatusColor(order.status).withValues(alpha: 0.2),
+                        child: Icon(
+                          _getStatusIcon(order.status),
+                          color: _getStatusColor(order.status),
+                        ),
+                      ),
+                      title: Text('Order #${order.id}'),
+                      subtitle: Text(
+                        '${_formatDate(order.date)} • ${order.status}',
+                        style: TextStyle(
+                          color: _getStatusColor(order.status),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      trailing: Text(
+                        '\$${order.total.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Items:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              ...order.items.map((item) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.circle, size: 6, color: Colors.grey),
+                                    const SizedBox(width: 8),
+                                    Text(item),
+                                  ],
+                                ),
+                              )),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  if (order.status == 'In Transit')
+                                    ElevatedButton.icon(
+                                      onPressed: () => _trackOrder(order),
+                                      icon: const Icon(Icons.location_on),
+                                      label: const Text('Track Order'),
+                                    ),
+                                  if (order.status == 'Delivered')
+                                    ElevatedButton.icon(
+                                      onPressed: () => _reorderItems(order),
+                                      icon: const Icon(Icons.refresh),
+                                      label: const Text('Reorder'),
+                                    ),
+                                  OutlinedButton.icon(
+                                    onPressed: () => _viewOrderDetails(order),
+                                    icon: const Icon(Icons.visibility),
+                                    label: const Text('View Details'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterTab(String filter, int count, Color color) {
+    bool isSelected = _selectedFilter == filter;
+    
+    return Expanded(
+      child: InkWell(
+        onTap: _isLoading ? null : () async {
+          setState(() {
+            _selectedFilter = filter;
+          });
+          await _loadOrders();
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: isSelected 
+              ? Border.all(color: color, width: 2)
+              : Border.all(color: Colors.grey.shade300, width: 1),
+          ),
+          child: Column(
+            children: [
+              Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: isSelected ? 26 : 22,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? color : Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                filter == 'All' ? 'Total' : filter,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: isSelected ? color : Colors.grey.shade600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Delivered':
+        return Colors.green;
+      case 'In Transit':
+        return Colors.orange;
+      case 'Cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'Delivered':
+        return Icons.check_circle;
+      case 'In Transit':
+        return Icons.local_shipping;
+      case 'Cancelled':
+        return Icons.cancel;
+      default:
+        return Icons.shopping_bag;
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  void _trackOrder(Order order) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Track Order #${order.id}'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.check_circle, color: Colors.green),
+              title: Text('Order Confirmed'),
+              subtitle: Text('Your order has been confirmed'),
+            ),
+            ListTile(
+              leading: Icon(Icons.inventory, color: Colors.green),
+              title: Text('Prepared for Shipping'),
+              subtitle: Text('Your order is being prepared'),
+            ),
+            ListTile(
+              leading: Icon(Icons.local_shipping, color: Colors.orange),
+              title: Text('In Transit'),
+              subtitle: Text('Your order is on the way'),
+            ),
+            ListTile(
+              leading: Icon(Icons.home, color: Colors.grey),
+              title: Text('Out for Delivery'),
+              subtitle: Text('Will be delivered soon'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _reorderItems(Order order) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added ${order.items.length} items to cart for reorder'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _viewOrderDetails(Order order) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderDetailsPage(order: order),
+      ),
     );
   }
 }
 
-class _ExpiryDateFormatter extends TextInputFormatter {
+class OrderDetailsPage extends StatelessWidget {
+  final Order order;
+
+  const OrderDetailsPage({super.key, required this.order});
+
   @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text.replaceAll('/', '');
-    final buffer = StringBuffer();
-    
-    for (int i = 0; i < text.length && i < 4; i++) {
-      if (i == 2) {
-        buffer.write('/');
-      }
-      buffer.write(text[i]);
-    }
-    
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Order #${order.id}'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Order Information',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDetailRow('Order ID', order.id),
+                    _buildDetailRow('Date', '${order.date.day}/${order.date.month}/${order.date.year}'),
+                    _buildDetailRow('Status', order.status),
+                    _buildDetailRow('Total', '\$${order.total.toStringAsFixed(2)}'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Items Ordered',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 16),
+                    ...order.items.map((item) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.shopping_basket),
+                          const SizedBox(width: 12),
+                          Expanded(child: Text(item)),
+                        ],
+                      ),
+                    )),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Text(value),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+// Dialog utility for quick orders view
+class OrdersDialogUtils {
+  static void showOrdersDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.shopping_bag, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('My Orders'),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.orange.shade100,
+                      child: Text('#${index + 1}'),
+                    ),
+                    title: Text('Order #${2024000 + index + 1}'),
+                    subtitle: Text('Status: ${index % 2 == 0 ? 'Delivered' : 'In Transit'}'),
+                    trailing: Text('\$${(25.99 * (index + 1)).toStringAsFixed(2)}'),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OrdersPage()),
+                );
+              },
+              child: const Text('View All'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

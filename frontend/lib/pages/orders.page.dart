@@ -131,13 +131,17 @@ class _OrdersPageState extends State<OrdersPage> {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) async {
+              // Store context-dependent values before async operation
+              final messenger = ScaffoldMessenger.of(context);
+              final refreshMessage = i10n.refreshOrders;
+              
               switch (value) {
                 case 'refresh':
                   final messenger = ScaffoldMessenger.of(context);
                   await _loadOrders();
                   if (mounted) {
                     messenger.showSnackBar(
-                      SnackBar(content: Text(i10n.refreshOrders)),
+                      SnackBar(content: Text(refreshMessage)),
                     );
                   }
                   break;
@@ -153,7 +157,13 @@ class _OrdersPageState extends State<OrdersPage> {
                   children: [
                     const Icon(Icons.refresh),
                     const SizedBox(width: 8),
-                    Text(i10n.refreshOrders),
+                    Expanded(
+                      child: Text(
+                        i10n.refreshOrders,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -163,7 +173,13 @@ class _OrdersPageState extends State<OrdersPage> {
                   children: [
                     const Icon(Icons.add),
                     const SizedBox(width: 8),
-                    Text(i10n.createTestOrder),
+                    Expanded(
+                      child: Text(
+                        i10n.createTestOrder,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
+                    ),
                   ],
                 ),
               ),

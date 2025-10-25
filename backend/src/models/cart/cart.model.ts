@@ -3,7 +3,7 @@
  * Manages shopping cart functionality for DeliverGaz application
  */
 
-import { Schema, model, Document, Types, Model } from 'mongoose';
+import { Schema, model, Document, Types, Model, type SchemaDefinition } from 'mongoose';
 
 /**
  * Cart Item interface
@@ -101,14 +101,14 @@ const CartItemSchema = new Schema<ICartItem>({
     type: Date,
     default: Date.now
   }
-}, {
+} as SchemaDefinition<ICartItem>, {
   _id: false // Don't create separate _id for subdocuments
 });
 
 /**
  * Cart Schema
  */
-const CartSchema = new Schema<ICart>({
+const CartSchema = new Schema<ICart, ICartModel>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -165,14 +165,14 @@ const CartSchema = new Schema<ICart>({
   },
   expiresAt: {
     type: Date,
-    default: function() {
+    default: function(this: any) {
       // Cart expires after 30 days for logged-in users, 7 days for guests
       const days = this.userId ? 30 : 7;
       return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
     },
     index: { expireAfterSeconds: 0 } // MongoDB TTL index
   }
-}, {
+} as unknown as SchemaDefinition<ICart>, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
@@ -445,5 +445,5 @@ CartSchema.statics.cleanupExpiredCarts = function() {
 /**
  * Export the model
  */
-export const Cart = model<ICart, ICartModel>('Cart', CartSchema);
+export const Cart = model<ICart, ICartModel>('Cart', CartSchema as Schema<ICart, ICartModel>);
 export default Cart;

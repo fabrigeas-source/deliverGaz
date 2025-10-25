@@ -369,15 +369,7 @@ const router = Router({ caseSensitive: true, strict: true });
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      status,
-      startDate,
-      endDate,
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
-    } = req.query;
+    const { page = 1 } = req.query;
 
     // TODO: Implement order retrieval logic
     // 1. Get user ID from authenticated request

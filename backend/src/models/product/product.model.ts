@@ -3,7 +3,7 @@
  * Manages product catalog for DeliverGaz application
  */
 
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, type SchemaDefinition } from 'mongoose';
 
 export interface IProduct extends Document {
   name: string;
@@ -120,7 +120,7 @@ const ProductSchema = new Schema<IProduct>({
     default: 'active',
     index: true
   }
-}, {
+} as unknown as SchemaDefinition<IProduct>, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }

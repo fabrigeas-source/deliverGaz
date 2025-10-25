@@ -85,7 +85,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get orders => 'Commandes';
 
   @override
-  String get myOrders => 'My Orders';
+  String get myOrders => 'Mes commandes';
 
   @override
   String get orderHistory => 'Historique des Commandes';
@@ -654,7 +654,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Payer avec MTN, Orange, ou autres portefeuilles mobiles';
 
   @override
-  String get bankTransferDesc => 'Direct bank transfer';
+  String get bankTransferDesc => 'Virement bancaire direct';
 
   @override
   String get payOnDelivery => 'Paiement à la Livraison';
@@ -727,7 +727,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get orderConfirmationSms =>
-      '• Order confirmation will be sent via SMS';
+      '• La confirmation de commande sera envoyée par SMS';
 
   @override
   String get deliveryDetails => 'Détails de Livraison';

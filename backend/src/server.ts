@@ -17,8 +17,8 @@ import config, {
   hasValidDatabaseConfig 
 } from './config';
 
-// Import middleware
-import { errorHandler, requestLogger } from './middleware';
+// Import middleware (currently not applied globally)
+// import { errorHandler, requestLogger } from './middleware';
 
 // Import modular routes
 import { 
@@ -84,6 +84,12 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsDir));
+
+// Static file serving for public assets (root path)
+const publicDir = path.join(__dirname, '..', 'public');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
 
 // Swagger UI setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));

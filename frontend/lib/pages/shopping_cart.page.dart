@@ -459,6 +459,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             onPressed: () async {
               Navigator.pop(context);
               
+              // Store context-dependent values before async operation
               final l10n = AppLocalizations.of(context)!;
               final messenger = ScaffoldMessenger.of(context);
               

@@ -652,7 +652,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Pagar con MTN, Orange, u otras billeteras móviles';
 
   @override
-  String get bankTransferDesc => 'Direct bank transfer';
+  String get bankTransferDesc => 'Transferencia bancaria directa';
 
   @override
   String get payOnDelivery => 'Pago Contra Entrega';
@@ -727,7 +727,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get orderConfirmationSms =>
-      '• Order confirmation will be sent via SMS';
+      '• La confirmación del pedido se enviará por SMS';
 
   @override
   String get deliveryDetails => 'Detalles de Entrega';
@@ -991,57 +991,57 @@ class AppLocalizationsEs extends AppLocalizations {
   String get japan => 'Japón';
 
   @override
-  String get welcomeBack => 'Welcome Back!';
+  String get welcomeBack => '¡Bienvenido de nuevo!';
 
   @override
-  String get signInToYourAccount => 'Sign in to your account';
+  String get signInToYourAccount => 'Inicia sesión en tu cuenta';
 
   @override
   String get demoMode =>
-      'Demo Mode: Form pre-filled with test credentials. Just click \"Sign In\"!';
+      'Modo demostración: Formulario prellenado con credenciales de prueba. ¡Solo haz clic en \"Iniciar sesión\"!';
 
   @override
   String get prefilledEmailHelper =>
-      'Pre-filled with test account (john.doe@example.com)';
+      'Prellenado con cuenta de prueba (john.doe@example.com)';
 
   @override
   String get prefilledPasswordHelper =>
-      'Pre-filled with test password (password123)';
+      'Prellenado con contraseña de prueba (password123)';
 
   @override
-  String get pleaseEnterPassword => 'Please enter your password';
+  String get pleaseEnterPassword => 'Por favor ingresa tu contraseña';
 
   @override
   String get passwordMustBe6Characters =>
-      'Password must be at least 6 characters';
+      'La contraseña debe tener al menos 6 caracteres';
 
   @override
-  String get rememberMe => 'Remember me';
+  String get rememberMe => 'Recordarme';
 
   @override
-  String get or => 'or';
+  String get or => 'o';
 
   @override
-  String get continueWithGoogle => 'Continue with Google';
+  String get continueWithGoogle => 'Continuar con Google';
 
   @override
   String get googleSignInNotImplemented =>
-      'Google Sign In would be implemented here';
+      'El inicio de sesión con Google se implementaría aquí';
 
   @override
-  String get dontHaveAccount => 'Don\'t have an account? ';
+  String get dontHaveAccount => '¿No tienes una cuenta? ';
 
   @override
-  String get successfullySignedIn => 'You have successfully signed in';
+  String get successfullySignedIn => 'Te has autenticado correctamente';
 
   @override
-  String get sessionInformation => 'Session Information';
+  String get sessionInformation => 'Información de la sesión';
 
   @override
-  String get signInTime => 'Sign In Time';
+  String get signInTime => 'Hora de inicio de sesión';
 
   @override
-  String get yes => 'Yes';
+  String get yes => 'Sí';
 
   @override
   String get no => 'No';
@@ -1050,64 +1050,66 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ok => 'OK';
 
   @override
-  String get noAccountFound => 'No account found with this email address';
+  String get noAccountFound =>
+      'No se encontró una cuenta con este correo electrónico';
 
   @override
-  String get invalidCredentials => 'Invalid email or password';
+  String get invalidCredentials => 'Correo o contraseña inválidos';
 
   @override
   String signInGenericError(String error) {
-    return 'An error occurred during sign in: $error';
+    return 'Ocurrió un error durante el inicio de sesión: $error';
   }
 
   @override
   String get signInSuccessMessage =>
-      'Welcome back! You have been signed in successfully.';
+      '¡Bienvenido de nuevo! Has iniciado sesión con éxito.';
 
   @override
-  String get signOutSuccess => 'Sign Out Success';
+  String get signOutSuccess => 'Cierre de sesión exitoso';
 
   @override
-  String get signOutMessage => 'You have been signed out successfully.';
+  String get signOutMessage => 'Has cerrado sesión con éxito.';
 
   @override
-  String get forgotPasswordTitle => 'Forgot Password';
+  String get forgotPasswordTitle => 'Restablecer contraseña';
 
   @override
   String get forgotPasswordMessage =>
-      'Password reset functionality would be implemented here. For this demo, please use the pre-filled credentials.';
+      'La funcionalidad de restablecimiento de contraseña se implementaría aquí. Para esta demo, usa las credenciales prellenadas.';
 
   @override
   String welcomeBackUser(String firstName) {
-    return 'Welcome back, $firstName!';
+    return '¡Bienvenido de nuevo, $firstName!';
   }
 
   @override
-  String get loginFailed => 'Login failed';
+  String get loginFailed => 'Inicio de sesión fallido';
 
   @override
   String shoppingCartWithCount(int count) {
-    return 'Shopping Cart ($count)';
+    return 'Carrito de Compras ($count)';
   }
 
   @override
-  String get refreshCart => 'Refresh Cart';
+  String get refreshCart => 'Actualizar carrito';
 
   @override
-  String get clearCart => 'Clear Cart';
+  String get clearCart => 'Vaciar carrito';
 
   @override
-  String get yourCartIsEmpty => 'Your cart is empty';
+  String get yourCartIsEmpty => 'Tu carrito está vacío';
 
   @override
-  String get addSomeItemsToGetStarted => 'Add some items to get started';
+  String get addSomeItemsToGetStarted =>
+      'Agrega algunos artículos para comenzar';
 
   @override
-  String get startShopping => 'Start Shopping';
+  String get startShopping => 'Comenzar a comprar';
 
   @override
   String itemsCount(int count) {
-    return '$count Items';
+    return '$count Artículos';
   }
 
   @override
@@ -1117,89 +1119,89 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String itemsInCart(int count) {
-    return '$count items';
+    return '$count artículos';
   }
 
   @override
   String failedToLoadCartItems(String error) {
-    return 'Failed to load cart items: $error';
+    return 'Error al cargar los artículos del carrito: $error';
   }
 
   @override
   String failedToUpdateQuantity(String error) {
-    return 'Failed to update quantity: $error';
+    return 'Error al actualizar la cantidad: $error';
   }
 
   @override
-  String get itemRemovedFromCart => 'Item removed from cart';
+  String get itemRemovedFromCart => 'Artículo eliminado del carrito';
 
   @override
   String failedToRemoveItem(String error) {
-    return 'Failed to remove item: $error';
+    return 'Error al quitar el artículo: $error';
   }
 
   @override
   String get clearCartConfirmation =>
-      'Are you sure you want to remove all items from your cart?';
+      '¿Estás seguro de que deseas eliminar todos los artículos de tu carrito?';
 
   @override
-  String get clear => 'Clear';
+  String get clear => 'Limpiar';
 
   @override
-  String get cartCleared => 'Cart cleared';
+  String get cartCleared => 'Carrito vaciado';
 
   @override
   String failedToClearCart(String error) {
-    return 'Failed to clear cart: $error';
+    return 'Error al vaciar el carrito: $error';
   }
 
   @override
-  String get yourCartIsEmptyCheckout => 'Your cart is empty';
+  String get yourCartIsEmptyCheckout => 'Tu carrito está vacío';
 
   @override
-  String get myShoppingCart => 'My Shopping Cart';
+  String get myShoppingCart => 'Mi carrito de compras';
 
   @override
-  String get viewCart => 'View Cart';
+  String get viewCart => 'Ver carrito';
 
   @override
-  String get registration => 'Registration';
+  String get registration => 'Registro';
 
   @override
-  String get createYourAccount => 'Create Your Account';
+  String get createYourAccount => 'Crea tu cuenta';
 
   @override
-  String get agreeToTerms => 'I agree to the Terms and Conditions';
+  String get agreeToTerms => 'Acepto los Términos y Condiciones';
 
   @override
-  String get creatingAccount => 'Creating account...';
+  String get creatingAccount => 'Creando cuenta...';
 
   @override
-  String get alreadyHaveAccount => 'Already have an account? ';
+  String get alreadyHaveAccount => '¿Ya tienes una cuenta? ';
 
   @override
-  String get clearForm => 'Clear Form';
+  String get clearForm => 'Limpiar formulario';
 
   @override
   String welcomeRegistrationSuccess(String firstName) {
-    return 'Welcome $firstName! Registration successful!';
+    return '¡Bienvenido $firstName! ¡Registro exitoso!';
   }
 
   @override
-  String get pleaseAgreeToTerms => 'Please agree to terms and conditions';
+  String get pleaseAgreeToTerms =>
+      'Por favor acepta los términos y condiciones';
 
   @override
-  String get registrationSuccessful => 'Registration Successful!';
+  String get registrationSuccessful => '¡Registro exitoso!';
 
   @override
-  String get accountCreatedMessage =>
-      'Your account has been created successfully.';
+  String get accountCreatedMessage => 'Tu cuenta ha sido creada con éxito.';
 
   @override
-  String get registerAnotherUser => 'Register Another User';
+  String get registerAnotherUser => 'Registrar otro usuario';
 
   @override
-  String get register => 'Register';
+  String get register => 'Registrarse';
 
   @override
   String get createNewOrder => 'Crear Nuevo Pedido';
@@ -1254,36 +1256,38 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get profileUpdatedSuccessfully => 'Profile updated successfully!';
+  String get profileUpdatedSuccessfully => '¡Perfil actualizado con éxito!';
 
   @override
   String get cameraFunctionalityNotImplemented =>
-      'Camera functionality would be implemented here';
+      'La funcionalidad de cámara se implementaría aquí';
 
   @override
-  String get receiveOrderUpdatesEmail => 'Receive order updates via email';
+  String get receiveOrderUpdatesEmail =>
+      'Recibir actualizaciones de pedido por correo electrónico';
 
   @override
-  String get receiveOrderUpdatesSMS => 'Receive order updates via SMS';
+  String get receiveOrderUpdatesSMS =>
+      'Recibir actualizaciones de pedido por SMS';
 
   @override
-  String get receivePromotionalOffers => 'Receive promotional offers';
+  String get receivePromotionalOffers => 'Recibir ofertas promocionales';
 
   @override
-  String get editMyInformation => 'Edit My Information';
+  String get editMyInformation => 'Editar mi información';
 
   @override
   String get profileEditingDescription =>
-      'This would navigate to a profile editing page where you can:';
+      'Esto navegaría a una página de edición de perfil donde puedes:';
 
   @override
-  String get updatePersonalInfo => '• Update personal information';
+  String get updatePersonalInfo => '• Actualizar información personal';
 
   @override
-  String get modifyContactDetails => '• Modify contact details';
+  String get modifyContactDetails => '• Modificar detalles de contacto';
 
   @override
-  String get updatePreferences => '• Update preferences';
+  String get updatePreferences => '• Actualizar preferencias';
 
   @override
   String get refresh => 'Actualizar';

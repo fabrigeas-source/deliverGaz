@@ -3,7 +3,7 @@
  * Manages user authentication and profile data for DeliverGaz application
  */
 
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types, type SchemaDefinition } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 /**
@@ -111,7 +111,7 @@ export interface IUser extends Document {
 /**
  * Address Schema
  */
-const AddressSchema = new Schema<IAddress>({
+const addressDefinition: SchemaDefinition<IAddress> = {
   street: {
     type: String,
     required: [true, 'Street address is required'],
@@ -166,7 +166,9 @@ const AddressSchema = new Schema<IAddress>({
     enum: ['Home', 'Work', 'Other'],
     default: 'Other'
   }
-}, { _id: true });
+};
+
+const AddressSchema = new Schema(addressDefinition, { _id: true });
 
 /**
  * User Schema
@@ -325,7 +327,7 @@ const UserSchema = new Schema<IUser>({
   },
   lastLoginAt: Date,
   lastActiveAt: { type: Date, default: Date.now }
-}, {
+} as any, {
   timestamps: true,
   toJSON: { 
     virtuals: true,
