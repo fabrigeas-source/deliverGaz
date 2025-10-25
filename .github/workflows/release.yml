@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-push:
+  build-and-push-backend:
     name: Build and push backend image to GHCR
     runs-on: ubuntu-latest
     permissions:
@@ -51,10 +51,39 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+  build-and-push-frontend:
+    name: Build and push frontend image to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter (stable)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Frontend - flutter pub get
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Frontend - build web (release)
+        working-directory: frontend
+        run: flutter build web --release --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL_PROD }}
+
+      - name: Publish web build to backend/public
+        shell: bash
+        run: |
+          rm -rf backend/public && mkdir -p backend/public
+          cp -a frontend/build/web/. backend/public/
+
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: [build-and-push-backend, build-and-push-frontend]
     if: ${{ github.ref == 'refs/heads/stage' }}
     steps:
       - name: Checkout
