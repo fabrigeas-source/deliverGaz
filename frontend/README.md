@@ -2,6 +2,8 @@
 
 A modern Flutter delivery application for gas services with comprehensive internationalization support and mock API backend.
 
+> CI: This section intentionally updated to trigger Frontend CI.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
