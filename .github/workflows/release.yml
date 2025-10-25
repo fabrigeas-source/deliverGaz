@@ -221,13 +221,12 @@ jobs:
             sudo chown -R $USER:$USER /opt/delivergaz
             cat > /tmp/.env <<'EOF'
             NODE_ENV=production
+            sudo tee /opt/delivergaz/backend/.env > /dev/null <<EOF
+            NODE_ENV=production
             PORT=3000
             MONGO_URI=${{ secrets.MONGO_URI }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EOF
-            sudo mv /tmp/.env /opt/delivergaz/backend/.env
-            sudo chown root:root /opt/delivergaz/backend/.env
-            sudo chmod 600 /opt/delivergaz/backend/.env
 
       - name: Deploy to EC2
         uses: ./pipelines/ec2-ssh-deploy
